@@ -1,0 +1,174 @@
+﻿@page "/"
+@using BlazorInputFile
+@using Data
+@using SkiaSharp
+@using System.IO
+@using Microsoft.AspNetCore.Hosting;
+@using Data.Repositories
+@using Blazored.Toast
+@inject IToastService toastService
+@inject IWebHostEnvironment _environment
+@inject IReportSectionsRepository _sectionsRepo
+@inject IProductionReportsRepository _reportsRepo
+
+<BlazoredToasts />
+
+<div class="container">
+    <h2>
+        Production report
+        <br /> @_date.ToString("yyyy-MM-dd hh:mm")
+    </h2>
+
+    @if (_pictures != null)
+    {
+        @foreach (var item in _pictures)
+        {
+            <div class="row mb-3">
+                <div class="col-sm-12 col-md-6">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Section</span>
+                        </div>
+                        <input type="text" class="form-control" list="sections" @bind="item.SectionName" />
+                        <datalist id="sections">
+                            @foreach (var reportSection in _reportSections.Sections)
+                            {
+                                <option value="@reportSection">@reportSection</option>
+                            }
+                        </datalist>
+                        <div class="input-group-append">
+                            <label class="btn pb-0 mb-0 btn-outline-dark">
+                                <InputFile OnChange="HandleFileSelected" capture="environment" accept="image/*" />
+                                <i class="oi oi-cloud-upload"></i> Upload
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-md-6">
+                    <img src="@item.PictureUrl" style="max-height:600px" class="img-fluid" alt="" />
+                </div>
+            </div>
+
+        }
+    }
+
+    @if (_saving)
+    {
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                <span>Please wait<span class="dotdotdot"></span></span>
+            </div>
+        </div>
+    }
+
+    <div class="row m-3">
+        <div class="col-12">
+            <button class="btn btn-success" @onclick="AddPicture">Add picture</button>
+        </div>
+    </div>
+
+    @if (_pictures.Any(x => string.IsNullOrWhiteSpace(x.SectionName)) || _pictures.Any(x => string.IsNullOrWhiteSpace(x.PictureUrl)))
+    {
+
+    }
+    else
+    {
+        <div class="row m-3">
+            <div class="col-12">
+                <button class="btn btn-success" @onclick="PostProductionreport">Save production report</button>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+@code{
+    bool _saving;
+    DateTime _date;
+    List<ReportPicture> _pictures;
+    ReportSections _reportSections;
+    string _selectedSection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        StartUp();
+        _reportSections = await _sectionsRepo.Get();
+    }
+
+    private void StartUp()
+    {
+        _date = DateTime.Now;
+        _pictures = new List<ReportPicture>();
+    }
+
+    async Task HandleFileSelected(IFileListEntry[] files)
+    {
+        var file = files.FirstOrDefault();
+
+        var path = Path.GetTempFileName();
+        using (var stream = new FileStream(path, FileMode.Create))
+        {
+            await file.Data.CopyToAsync(stream).ConfigureAwait(false);
+        }
+
+        var desiredWidth = 800;
+
+        // create the codec
+        using (var codec = SKCodec.Create(path))
+        {
+            var info = codec.Info;
+
+            // get the scale that is nearest to what we want (eg: jpg returned 512)
+            var supportedScale = codec.GetScaledDimensions((float)desiredWidth / info.Width);
+
+            // decode the bitmap at the nearest size
+            var nearest = new SKImageInfo(supportedScale.Width, supportedScale.Height);
+            var bmp = SKBitmap.Decode(codec, nearest);
+
+            var fileName = $"{Guid.NewGuid()}.jpg";
+
+            var filePath = Path.Combine(_environment.ContentRootPath, "wwwroot", "uploads", fileName);
+            using (var s = System.IO.File.OpenWrite(filePath))
+            {
+                SKData d = SKImage.FromBitmap(bmp).Encode(SKEncodedImageFormat.Jpeg, 90);
+                d.SaveTo(s);
+                _pictures.Last().PictureUrl = $"uploads/{fileName}";
+            }
+        }
+    }
+
+    void AddPicture()
+    {
+        _pictures.Add(new ReportPicture());
+    }
+
+    async Task PostProductionreport()
+    {
+        var report = new ProductionReport { Date = _date, ReportPictures = _pictures};
+
+        var sectionNames = _pictures.Select(x => x.SectionName).ToList();
+        var difference = sectionNames.Except(_reportSections.Sections).ToList();
+
+        if (difference.Any())
+        {
+            await _sectionsRepo.Post(difference);
+            _reportSections.Sections.AddRange(difference);
+        }
+
+        var result = await _reportsRepo.Post(report);
+
+        if (result)
+        {
+            toastService.ShowSuccess("Added to the database");
+            StartUp();
+        }
+        else
+        {
+            toastService.ShowError("Failure when adding to the database");
+        }
+    }
+}
+
+
