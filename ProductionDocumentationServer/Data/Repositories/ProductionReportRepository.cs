@@ -19,8 +19,8 @@ namespace ProductionDocumentationServer.Data.Repositories
             using (var db = Connection)
             {
 
-                var sql = @"INSERT INTO ProductionReports(Date) VALUES(@Date) SELECT CAST(SCOPE_IDENTITY() as int)";
-                var picturesSql = @"INSERT INTO ReportPictures(SectionName, PictureUrl ,ReportId) VALUES(@SectionName, @PictureUrl, @ReportId)";
+                const string sql = @"INSERT INTO ProductionReports(Date) VALUES(@Date) SELECT CAST(SCOPE_IDENTITY() as int)";
+                const string picturesSql = @"INSERT INTO ReportPictures(SectionName, PictureUrl ,ReportId) VALUES(@SectionName, @PictureUrl, @ReportId)";
 
                 var id = await db.QuerySingleAsync<int>(sql, new { productionReport.Date }).ConfigureAwait(false);
 
@@ -46,18 +46,27 @@ namespace ProductionDocumentationServer.Data.Repositories
 
         public async Task<ProductionReport> GetById(int id)
         {
-            var sql = @"SELECT A.[Id]
-      ,A.[Date]
-      ,A.[PicturesId]
-	  ,B.TipPicture
-	  ,B.RootPicture
-	  ,B.SectionPicture
-  FROM [dbo].[ProductionReports] A
-  INNER JOIN ReportPictures B on A.[PicturesId] = B.Id
-  WHERE A.Id = @Id";
+            const string sql = @"
+SELECT 
+       [Id]
+      ,[Date]
+  FROM [dbo].[ProductionReports] A";
+
+            const string picturesSql = @"
+SELECT [Id]
+      ,[SectionName]
+      ,[PictureUrl]
+      ,[ReportId]
+  FROM [dbo].[ReportPictures]
+  WHERE ReportId = @Id";
+
             using (var db = Connection)
             {
                 var r = await db.QueryFirstAsync<ProductionReport>(sql, new { id }).ConfigureAwait(false);
+                var pictures = await db.QueryAsync<ReportPicture>(picturesSql, new {id }).ConfigureAwait(false);
+
+                r.ReportPictures = pictures.ToList();
+
                 return r;
             }
         }
