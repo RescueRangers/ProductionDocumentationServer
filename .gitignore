@@ -339,4 +339,4 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-wwwroot/uploads/*
+/ProductionDocumentationServer/wwwroot/uploads/*
