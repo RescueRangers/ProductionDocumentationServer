@@ -2,7 +2,10 @@
 
 @using ProductionDocumentationServer.Data
 @using ProductionDocumentationServer.Data.Repositories
+@using ProductionDocumentationServer.Services
 @inject IProductionReportsRepository _reportsRepo
+@inject IPdfService _pdfService
+@inject IJSRuntime js
 
 <h3>Report</h3>
 
@@ -25,6 +28,8 @@ else
             <div class="col-12"><img class="img-fluid" src="@item.PictureUrl" /></div>
         </div>
     }
+
+    <button class="btn btn-outline-success mb-4" @onclick="@GeneratePdf">Download report</button>
 }
 
 @code {
@@ -37,5 +42,12 @@ else
         {
             _report = await _reportsRepo.GetById(intId).ConfigureAwait(false);
         }
+    }
+
+    async Task GeneratePdf()
+    {
+        var result = await _pdfService.GeneratePdfReport(_report);
+
+        FileUtil.SaveAs(js, "Report.pdf", result);
     }
 }

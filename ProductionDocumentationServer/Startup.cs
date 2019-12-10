@@ -1,15 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Blazored.Toast;
+using jsreport.AspNetCore;
+using jsreport.Client;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ProductionDocumentationServer.Data.Repositories;
+using ProductionDocumentationServer.Services;
 
 namespace ProductionDocumentationServer
 {
@@ -24,17 +22,21 @@ namespace ProductionDocumentationServer
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
-        public void ConfigureServices(IServiceCollection services)
+        public static void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<IProductionReportsRepository, ProductionReportsRepository>();
             services.AddSingleton<IReportSectionsRepository, ReportSectionsRepository>();
             services.AddBlazoredToast();
+            services.AddJsReport(new ReportingService("http://172.25.194.30:5488"));
+            services.AddSingleton<IPdfService, PdfService>();
         }
 
+        
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {

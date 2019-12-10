@@ -12,8 +12,13 @@ RUN dotnet build "ProductionDocumentationServer.csproj" -c Release -o /app/build
 
 FROM build AS publish
 RUN dotnet publish "ProductionDocumentationServer.csproj" -c Release -o /app/publish
+WORKDIR /app
+RUN wget -q https://github.com/mono/SkiaSharp/releases/download/v1.68.0/libSkiaSharp.so
+RUN chmod -x libSkiaSharp.so
+
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN apt-get update; apt-get install libfontconfig1 -y
 ENTRYPOINT ["dotnet", "ProductionDocumentationServer.dll"]
