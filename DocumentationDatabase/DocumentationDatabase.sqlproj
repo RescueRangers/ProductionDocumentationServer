@@ -62,8 +62,14 @@
     <Build Include="Tables\ProductionReports.sql" />
     <Build Include="Tables\ReportPictures.sql" />
     <Build Include="Tables\ReportSections.sql" />
+    <Build Include="Tables\ItemNumbers.sql" />
+    <Build Include="Tables\ItemNames.sql" />
+    <Build Include="Tables\Orders.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DocumentationDatabase.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="DocumentationDatabase.refactorlog" />
   </ItemGroup>
 </Project>

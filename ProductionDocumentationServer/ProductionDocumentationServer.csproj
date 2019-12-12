@@ -27,6 +27,10 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\" />
+  </ItemGroup>
+
   <Target Name="CopyRequiredNativeAssets" AfterTargets="Publish">
     <ItemGroup>
       <NativeAssetToCopy Include="$(PublishDir)runtimes\linux-x64\native\libSkiaSharp.so" />

@@ -28,12 +28,12 @@ namespace ProductionDocumentationServer
             services.AddServerSideBlazor();
             services.AddSingleton<IProductionReportsRepository, ProductionReportsRepository>();
             services.AddSingleton<IReportSectionsRepository, ReportSectionsRepository>();
+            services.AddSingleton<IItemNamesRepository, ItemNamesRepository>();
+            services.AddSingleton<IItemNumbersRepository, ItemNumbersRepository>();
             services.AddBlazoredToast();
             services.AddJsReport(new ReportingService("http://172.25.194.30:5488"));
             services.AddSingleton<IPdfService, PdfService>();
         }
-
-        
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)

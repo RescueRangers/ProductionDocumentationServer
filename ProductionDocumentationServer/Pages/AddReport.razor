@@ -10,14 +10,43 @@
 @inject IWebHostEnvironment _environment
 @inject IReportSectionsRepository _sectionsRepo
 @inject IProductionReportsRepository _reportsRepo
+@inject IItemNamesRepository _itemNamesRepo
+@inject IItemNumbersRepository _itemNumbersRepo
 
 <BlazoredToasts />
 
 <div class="container">
-    <h2>
+    <h3>
         Production report
         <br /> @_date.ToString("yyyy-MM-dd hh:mm")
-    </h2>
+    </h3>
+
+    <div class="form-row">
+        <div class="col">
+            <input type="text" list="itemNumbers" class="form-control" @bind="@_selectedItemNumber" placeholder="Item number" />
+            <datalist id="itemNumbers">
+                @if (_itemNumbers != null)
+                {
+                    @foreach (var itemNumber in _itemNumbers)
+                    {
+                        <option value="@itemNumber">@itemNumber</option>
+                    }
+                }
+            </datalist>
+        </div>
+        <div class="col">
+            <input type="text" list="itemNames" class="form-control" @bind="@_selectedItemName" placeholder="Item name" />
+            <datalist id="itemNames">
+                @if (_itemNames != null)
+                {
+                    @foreach (var itemName in _itemNames)
+                    {
+                        <option value="@itemName">@itemName</option>
+                    }
+                }
+            </datalist>
+        </div>
+    </div>
 
     @if (_pictures != null)
     {
@@ -90,10 +119,16 @@
     List<ReportPicture> _pictures;
     ReportSections _reportSections;
     string _selectedSection;
+    string _selectedItemName;
+    string _selectedItemNumber;
+    List<string> _itemNumbers;
+    List<string> _itemNames;
 
     protected override async Task OnInitializedAsync()
     {
         StartUp();
+        _itemNames = await _itemNamesRepo.Get();
+        _itemNumbers = await _itemNumbersRepo.Get();
         _reportSections = await _sectionsRepo.Get();
     }
 
@@ -146,15 +181,25 @@
 
     async Task PostProductionreport()
     {
-        var report = new ProductionReport { Date = _date, ReportPictures = _pictures};
+        var report = new ProductionReport { Date = _date, ReportPictures = _pictures, ItemName = _selectedItemName, ItemNumber = _selectedItemNumber };
 
         var sectionNames = _pictures.Select(x => x.SectionName).ToList();
-        var difference = sectionNames.Except(_reportSections.Sections).ToList();
+        var sectionDifferences = sectionNames.Except(_reportSections.Sections).ToList();
 
-        if (difference.Any())
+        if (sectionDifferences.Any())
         {
-            await _sectionsRepo.Post(difference);
-            _reportSections.Sections.AddRange(difference);
+            await _sectionsRepo.Post(sectionDifferences);
+            _reportSections.Sections.AddRange(sectionDifferences);
+        }
+
+        if (!_itemNames.Contains(_selectedItemName))
+        {
+            await _itemNamesRepo.Post(_selectedItemName);
+        }
+
+        if (!_itemNumbers.Contains(_selectedItemNumber))
+        {
+            await _itemNumbersRepo.Post(_selectedItemNumber);
         }
 
         var result = await _reportsRepo.Post(report);

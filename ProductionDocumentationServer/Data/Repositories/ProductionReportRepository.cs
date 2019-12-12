@@ -19,10 +19,10 @@ namespace ProductionDocumentationServer.Data.Repositories
             using (var db = Connection)
             {
 
-                const string sql = @"INSERT INTO ProductionReports(Date) VALUES(@Date) SELECT CAST(SCOPE_IDENTITY() as int)";
+                const string sql = @"INSERT INTO ProductionReports(Date, ItemName, ItemNumber) VALUES(@Date, @ItemName, @ItemNumber) SELECT CAST(SCOPE_IDENTITY() as int)";
                 const string picturesSql = @"INSERT INTO ReportPictures(SectionName, PictureUrl ,ReportId) VALUES(@SectionName, @PictureUrl, @ReportId)";
 
-                var id = await db.QuerySingleAsync<int>(sql, new { productionReport.Date }).ConfigureAwait(false);
+                var id = await db.QuerySingleAsync<int>(sql, new { productionReport.Date, ItemName = productionReport.ItemName, ItemNumber = productionReport.ItemNumber }).ConfigureAwait(false);
 
                 var results = new List<int>();
 
@@ -50,6 +50,8 @@ namespace ProductionDocumentationServer.Data.Repositories
 SELECT 
        [Id]
       ,[Date]
+      ,[ItemName]
+      ,[ItemNumber]
   FROM [dbo].[ProductionReports] A";
 
             const string picturesSql = @"
