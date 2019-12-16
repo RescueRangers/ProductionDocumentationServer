@@ -19,10 +19,10 @@ namespace ProductionDocumentationServer.Data.Repositories
             using (var db = Connection)
             {
 
-                const string sql = @"INSERT INTO ProductionReports(Date, ItemName, ItemNumber) VALUES(@Date, @ItemName, @ItemNumber) SELECT CAST(SCOPE_IDENTITY() as int)";
+                const string sql = @"INSERT INTO ProductionReports(Date, ItemName, ItemNumber, OrderId) VALUES(@Date, @ItemName, @ItemNumber, @OrderId) SELECT CAST(SCOPE_IDENTITY() as int)";
                 const string picturesSql = @"INSERT INTO ReportPictures(SectionName, PictureUrl ,ReportId) VALUES(@SectionName, @PictureUrl, @ReportId)";
 
-                var id = await db.QuerySingleAsync<int>(sql, new { productionReport.Date, ItemName = productionReport.ItemName, ItemNumber = productionReport.ItemNumber }).ConfigureAwait(false);
+                var id = await db.QuerySingleAsync<int>(sql, new { productionReport.Date, ItemName = productionReport.ItemName, ItemNumber = productionReport.ItemNumber, OrderId = productionReport.OrderId }).ConfigureAwait(false);
 
                 var results = new List<int>();
 
@@ -52,6 +52,7 @@ SELECT
       ,[Date]
       ,[ItemName]
       ,[ItemNumber]
+      ,[OrderId]
   FROM [dbo].[ProductionReports] A";
 
             const string picturesSql = @"
@@ -66,10 +67,30 @@ SELECT [Id]
             {
                 var r = await db.QueryFirstAsync<ProductionReport>(sql, new { id }).ConfigureAwait(false);
                 var pictures = await db.QueryAsync<ReportPicture>(picturesSql, new {id }).ConfigureAwait(false);
+                r.OrderNumber = await db.QueryFirstAsync<string>("SELECT [OrderNumber] FROM [dbo].[Orders] WHERE Id = @Id", new { Id = r.OrderId}).ConfigureAwait(false);
 
                 r.ReportPictures = pictures.ToList();
 
                 return r;
+            }
+        }
+
+        public async Task<List<ProductionReport>> GetByOrder(int orderId)
+        {
+            const string sql = @"
+SELECT 
+       [Id]
+      ,[Date]
+      ,[ItemName]
+      ,[ItemNumber]
+  FROM [dbo].[ProductionReports]
+  WHERE OrderId = @OrderId";
+
+            using (var db = Connection)
+            {
+                var r = await db.QueryAsync<ProductionReport>(sql, new { orderId }).ConfigureAwait(false);
+
+                return r.ToList();
             }
         }
     }

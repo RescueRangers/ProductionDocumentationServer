@@ -12,5 +12,7 @@ namespace ProductionDocumentationServer.Data
         public List<ReportPicture> ReportPictures { get; set; }
         public string ItemNumber { get; set; }
         public string ItemName { get; set; }
+        public int OrderId { get; set; }
+        public string OrderNumber { get; set; }
     }
 }

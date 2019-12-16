@@ -1,8 +1,9 @@
-﻿@page "/reports"
+﻿@page "/reports/{OrderId}"
 
 @using ProductionDocumentationServer.Data
 @using ProductionDocumentationServer.Data.Repositories
 @inject IProductionReportsRepository _reportsRepo
+@inject IOrdersRepository _ordersRepo
 
 <h3>Reports</h3>
 
@@ -29,15 +30,15 @@ else
         <tbody>
             @for (int i = 1; i <= _reports.Count(); i++)
             {
-            <tr>
-                <th scope="row">@i</th>
+                <tr>
+                    <th scope="row">@i</th>
                     <td>@_reports[i - 1].Date.ToString("yyyy-MM-dd hh:mm")</td>
                     <td>@_reports[i - 1].ItemNumber</td>
                     <td>@_reports[i - 1].ItemName</td>
                     <td>
                         <a href="/report/@_reports[i-1].Id"><span class="oi oi-eye"></span></a>
                     </td>
-            </tr>
+                </tr>
             }
         </tbody>
     </table>
@@ -48,12 +49,18 @@ else
 
 
 @code {
+    [Parameter] public string OrderId { get; set; }
+
     List<ProductionReport> _reports;
+    List<Order> _orders;
 
     protected override async Task OnInitializedAsync()
     {
-        var reports = await _reportsRepo.Get().ConfigureAwait(false);
-        _reports = reports.ToList();
+        if (int.TryParse(OrderId, out var id))
+        {
+            var reports = await _reportsRepo.GetByOrder(id).ConfigureAwait(false);
+            _reports = reports.ToList();
+        }
     }
 
 }

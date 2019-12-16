@@ -30,6 +30,7 @@ namespace ProductionDocumentationServer
             services.AddSingleton<IReportSectionsRepository, ReportSectionsRepository>();
             services.AddSingleton<IItemNamesRepository, ItemNamesRepository>();
             services.AddSingleton<IItemNumbersRepository, ItemNumbersRepository>();
+            services.AddSingleton<IOrdersRepository, OrdersRepository>();
             services.AddBlazoredToast();
             services.AddJsReport(new ReportingService("http://172.25.194.30:5488"));
             services.AddSingleton<IPdfService, PdfService>();

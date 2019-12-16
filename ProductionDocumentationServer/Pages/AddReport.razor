@@ -12,6 +12,7 @@
 @inject IProductionReportsRepository _reportsRepo
 @inject IItemNamesRepository _itemNamesRepo
 @inject IItemNumbersRepository _itemNumbersRepo
+@inject IOrdersRepository _ordersRepo
 
 <BlazoredToasts />
 
@@ -20,34 +21,50 @@
         Production report
         <br /> @_date.ToString("yyyy-MM-dd hh:mm")
     </h3>
-
-    <div class="form-row">
-        <div class="col">
-            <input type="text" list="itemNumbers" class="form-control" @bind="@_selectedItemNumber" placeholder="Item number" />
-            <datalist id="itemNumbers">
-                @if (_itemNumbers != null)
-                {
-                    @foreach (var itemNumber in _itemNumbers)
+    <form action="/" method="post">
+        <div class="form-row mb-3">
+            <div class="col">
+                <input type="text" list="orders" class="form-control" @bind="@_selectedOrder" placeholder="Order number" />
+                <datalist id="orders">
+                    @if (_orders != null)
                     {
-                        <option value="@itemNumber">@itemNumber</option>
+                        @foreach (var order in _orders)
+                        {
+                            <option value="@order.OrderNumber">@order.OrderNumber</option>
+                        }
                     }
-                }
-            </datalist>
+                </datalist>
+            </div>
         </div>
-        <div class="col">
-            <input type="text" list="itemNames" class="form-control" @bind="@_selectedItemName" placeholder="Item name" />
-            <datalist id="itemNames">
-                @if (_itemNames != null)
-                {
-                    @foreach (var itemName in _itemNames)
+        <div class="form-row">
+            <div class="col">
+                <input type="text" list="itemNumbers" class="form-control" @bind="@_selectedItemNumber" placeholder="Item number" />
+                <datalist id="itemNumbers">
+                    @if (_itemNumbers != null)
                     {
-                        <option value="@itemName">@itemName</option>
+                        @foreach (var itemNumber in _itemNumbers)
+                        {
+                            <option value="@itemNumber">@itemNumber</option>
+                        }
                     }
-                }
-            </datalist>
+                </datalist>
+            </div>
+            <div class="col">
+                <input type="text" list="itemNames" class="form-control" @bind="@_selectedItemName" placeholder="Item name" />
+                <datalist id="itemNames">
+                    @if (_itemNames != null)
+                    {
+                        @foreach (var itemName in _itemNames)
+                        {
+                            <option value="@itemName">@itemName</option>
+                        }
+                    }
+                </datalist>
+            </div>
         </div>
-    </div>
 
+    </form>
+    
     @if (_pictures != null)
     {
         @foreach (var item in _pictures)
@@ -97,7 +114,7 @@
         </div>
     </div>
 
-    @if (_pictures.Any(x => string.IsNullOrWhiteSpace(x.SectionName)) || _pictures.Any(x => string.IsNullOrWhiteSpace(x.PictureUrl)))
+    @if (_pictures.Any(x => string.IsNullOrWhiteSpace(x.SectionName)) || _pictures.Any(x => string.IsNullOrWhiteSpace(x.PictureUrl)) || string.IsNullOrWhiteSpace(_selectedOrder))
     {
 
     }
@@ -123,10 +140,13 @@
     string _selectedItemNumber;
     List<string> _itemNumbers;
     List<string> _itemNames;
+    List<Order> _orders;
+    string _selectedOrder;
 
     protected override async Task OnInitializedAsync()
     {
         StartUp();
+        _orders = await _ordersRepo.Get();
         _itemNames = await _itemNamesRepo.Get();
         _itemNumbers = await _itemNumbersRepo.Get();
         _reportSections = await _sectionsRepo.Get();
@@ -181,7 +201,9 @@
 
     async Task PostProductionreport()
     {
-        var report = new ProductionReport { Date = _date, ReportPictures = _pictures, ItemName = _selectedItemName, ItemNumber = _selectedItemNumber };
+        var orderId = await _ordersRepo.GetOrderId(_selectedOrder);
+
+        var report = new ProductionReport { Date = _date, ReportPictures = _pictures, ItemName = _selectedItemName, ItemNumber = _selectedItemNumber, OrderId = orderId };
 
         var sectionNames = _pictures.Select(x => x.SectionName).ToList();
         var sectionDifferences = sectionNames.Except(_reportSections.Sections).ToList();
@@ -195,11 +217,20 @@
         if (!_itemNames.Contains(_selectedItemName))
         {
             await _itemNamesRepo.Post(_selectedItemName);
+            _itemNames.Add(_selectedItemName);
         }
 
         if (!_itemNumbers.Contains(_selectedItemNumber))
         {
             await _itemNumbersRepo.Post(_selectedItemNumber);
+            _itemNumbers.Add(_selectedItemNumber);
+        }
+
+        var orderNumbers = _orders.Select(x => x.OrderNumber);
+
+        if (!orderNumbers.Contains(_selectedOrder))
+        {
+            _orders.Add(new Order{ OrderNumber = _selectedOrder});
         }
 
         var result = await _reportsRepo.Post(report);
