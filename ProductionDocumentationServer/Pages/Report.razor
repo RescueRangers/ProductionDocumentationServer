@@ -48,6 +48,6 @@ else
     {
         var result = await _pdfService.GeneratePdfReport(_report);
 
-        FileUtil.SaveAs(js, "Report.pdf", result);
+        await FileUtil.SaveAs(js, "Report.pdf", result);
     }
 }

@@ -19,10 +19,10 @@ namespace ProductionDocumentationServer.Data.Repositories
             using (var db = Connection)
             {
 
-                const string sql = @"INSERT INTO ProductionReports(Date, ItemName, ItemNumber, OrderId) VALUES(@Date, @ItemName, @ItemNumber, @OrderId) SELECT CAST(SCOPE_IDENTITY() as int)";
+                const string sql = @"INSERT INTO ProductionReports(Date, ItemName, ItemNumber, OrderId, TimeCode) VALUES(@Date, @ItemName, @ItemNumber, @OrderId, @TimeCode) SELECT CAST(SCOPE_IDENTITY() as int)";
                 const string picturesSql = @"INSERT INTO ReportPictures(SectionName, PictureUrl ,ReportId) VALUES(@SectionName, @PictureUrl, @ReportId)";
 
-                var id = await db.QuerySingleAsync<int>(sql, new { productionReport.Date, ItemName = productionReport.ItemName, ItemNumber = productionReport.ItemNumber, OrderId = productionReport.OrderId }).ConfigureAwait(false);
+                var id = await db.QuerySingleAsync<int>(sql, new { productionReport.Date, ItemName = productionReport.ItemName, ItemNumber = productionReport.ItemNumber, OrderId = productionReport.OrderId, TimeCode = productionReport.TimeCode }).ConfigureAwait(false);
 
                 var results = new List<int>();
 

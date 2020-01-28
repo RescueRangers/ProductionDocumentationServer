@@ -4,15 +4,11 @@
 @using SkiaSharp
 @using System.IO
 @using Microsoft.AspNetCore.Hosting;
-@using Data.Repositories
+@using Services
 @using Blazored.Toast
 @inject IToastService toastService
 @inject IWebHostEnvironment _environment
-@inject IReportSectionsRepository _sectionsRepo
-@inject IProductionReportsRepository _reportsRepo
-@inject IItemNamesRepository _itemNamesRepo
-@inject IItemNumbersRepository _itemNumbersRepo
-@inject IOrdersRepository _ordersRepo
+@inject IReportsService _reportsService
 
 <BlazoredToasts />
 
@@ -21,7 +17,7 @@
         Production report
         <br /> @_date.ToString("yyyy-MM-dd hh:mm")
     </h3>
-    <form action="/" method="post">
+    <form>
         <div class="form-row mb-3">
             <div class="col">
                 <input type="text" list="orders" class="form-control" @bind="@_selectedOrder" placeholder="Order number" />
@@ -62,9 +58,17 @@
                 </datalist>
             </div>
         </div>
-
     </form>
-    
+
+    <div class="form-row mb-3">
+        <div class="col">
+            <button @onclick="GenerateTimeCode" class="btn btn-success">Generate time code</button>
+        </div>
+        <div class="col border-info border ">
+            <p class="text-center mt-2 mb-0">@_timeCode</p>
+        </div>
+    </div>
+
     @if (_pictures != null)
     {
         @foreach (var item in _pictures)
@@ -142,14 +146,16 @@
     List<string> _itemNames;
     List<Order> _orders;
     string _selectedOrder;
+    string _timeCode;
 
     protected override async Task OnInitializedAsync()
     {
         StartUp();
-        _orders = await _ordersRepo.Get();
-        _itemNames = await _itemNamesRepo.Get();
-        _itemNumbers = await _itemNumbersRepo.Get();
-        _reportSections = await _sectionsRepo.Get();
+        _orders = await _reportsService.GetOrders();
+        _itemNames = await _reportsService.GetItemNames();
+        _itemNumbers = await _reportsService.GetItemNumbers();
+        _reportSections = await _reportsService.GetReportSections();
+        _timeCode = null;
     }
 
     private void StartUp()
@@ -194,6 +200,11 @@
         }
     }
 
+    void GenerateTimeCode()
+    {
+        _timeCode = Base36.NumberToBase36(DateTime.Now.Ticks);
+    }
+
     void AddPicture()
     {
         _pictures.Add(new ReportPicture());
@@ -201,28 +212,30 @@
 
     async Task PostProductionreport()
     {
-        var orderId = await _ordersRepo.GetOrderId(_selectedOrder);
+        var orderId = await _reportsService.GetOrderId(_selectedOrder);
 
-        var report = new ProductionReport { Date = _date, ReportPictures = _pictures, ItemName = _selectedItemName, ItemNumber = _selectedItemNumber, OrderId = orderId };
+        if (string.IsNullOrWhiteSpace(_timeCode)) GenerateTimeCode();
+
+        var report = new ProductionReport { Date = _date, ReportPictures = _pictures, ItemName = _selectedItemName, ItemNumber = _selectedItemNumber, OrderId = orderId, TimeCode = _timeCode };
 
         var sectionNames = _pictures.Select(x => x.SectionName).ToList();
         var sectionDifferences = sectionNames.Except(_reportSections.Sections).ToList();
 
         if (sectionDifferences.Any())
         {
-            await _sectionsRepo.Post(sectionDifferences);
+            await _reportsService.PostSections(sectionDifferences);
             _reportSections.Sections.AddRange(sectionDifferences);
         }
 
         if (!_itemNames.Contains(_selectedItemName))
         {
-            await _itemNamesRepo.Post(_selectedItemName);
+            await _reportsService.PostItemName(_selectedItemName);
             _itemNames.Add(_selectedItemName);
         }
 
         if (!_itemNumbers.Contains(_selectedItemNumber))
         {
-            await _itemNumbersRepo.Post(_selectedItemNumber);
+            await _reportsService.PostItemNumber(_selectedItemNumber);
             _itemNumbers.Add(_selectedItemNumber);
         }
 
@@ -233,7 +246,7 @@
             _orders.Add(new Order{ OrderNumber = _selectedOrder});
         }
 
-        var result = await _reportsRepo.Post(report);
+        var result = await _reportsService.PostReport(report);
 
         if (result)
         {

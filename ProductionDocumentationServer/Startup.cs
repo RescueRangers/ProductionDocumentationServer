@@ -33,7 +33,7 @@ namespace ProductionDocumentationServer
             services.AddSingleton<IOrdersRepository, OrdersRepository>();
             services.AddBlazoredToast();
             services.AddJsReport(new ReportingService("http://172.25.194.30:5488"));
-            services.AddSingleton<IPdfService, PdfService>();
+            services.AddSingleton<IReportsService, ReportsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
