@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ProductionDocumentationServer.Data
 {
@@ -11,7 +8,7 @@ namespace ProductionDocumentationServer.Data
 
         public ReportSections()
         {
-            Sections = new List<string> { "Root", "Tip", "Middle"};
+            Sections = new List<string> { "Root", "Tip", "Middle" };
         }
     }
 }

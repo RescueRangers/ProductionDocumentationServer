@@ -132,8 +132,6 @@
     }
 </div>
 
-
-
 @code{
     bool _saving;
     DateTime _date;
@@ -243,7 +241,7 @@
 
         if (!orderNumbers.Contains(_selectedOrder))
         {
-            _orders.Add(new Order{ OrderNumber = _selectedOrder});
+            _orders.Add(new Order { OrderNumber = _selectedOrder });
         }
 
         var result = await _reportsService.PostReport(report);
@@ -259,5 +257,3 @@
         }
     }
 }
-
-

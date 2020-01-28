@@ -1,9 +1,8 @@
-﻿using Dapper;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
+using Microsoft.Extensions.Configuration;
 
 namespace ProductionDocumentationServer.Data.Repositories
 {
@@ -18,7 +17,6 @@ namespace ProductionDocumentationServer.Data.Repositories
 
             using (var db = Connection)
             {
-
                 const string sql = @"INSERT INTO ProductionReports(Date, ItemName, ItemNumber, OrderId, TimeCode) VALUES(@Date, @ItemName, @ItemNumber, @OrderId, @TimeCode) SELECT CAST(SCOPE_IDENTITY() as int)";
                 const string picturesSql = @"INSERT INTO ReportPictures(SectionName, PictureUrl ,ReportId) VALUES(@SectionName, @PictureUrl, @ReportId)";
 
@@ -47,7 +45,7 @@ namespace ProductionDocumentationServer.Data.Repositories
         public async Task<ProductionReport> GetById(int id)
         {
             const string sql = @"
-SELECT 
+SELECT
        [Id]
       ,[Date]
       ,[ItemName]
@@ -66,8 +64,8 @@ SELECT [Id]
             using (var db = Connection)
             {
                 var r = await db.QueryFirstAsync<ProductionReport>(sql, new { id }).ConfigureAwait(false);
-                var pictures = await db.QueryAsync<ReportPicture>(picturesSql, new {id }).ConfigureAwait(false);
-                r.OrderNumber = await db.QueryFirstAsync<string>("SELECT [OrderNumber] FROM [dbo].[Orders] WHERE Id = @Id", new { Id = r.OrderId}).ConfigureAwait(false);
+                var pictures = await db.QueryAsync<ReportPicture>(picturesSql, new { id }).ConfigureAwait(false);
+                r.OrderNumber = await db.QueryFirstAsync<string>("SELECT [OrderNumber] FROM [dbo].[Orders] WHERE Id = @Id", new { Id = r.OrderId }).ConfigureAwait(false);
 
                 r.ReportPictures = pictures.ToList();
 
@@ -78,7 +76,7 @@ SELECT [Id]
         public async Task<List<ProductionReport>> GetByOrder(int orderId)
         {
             const string sql = @"
-SELECT 
+SELECT
        [Id]
       ,[Date]
       ,[ItemName]

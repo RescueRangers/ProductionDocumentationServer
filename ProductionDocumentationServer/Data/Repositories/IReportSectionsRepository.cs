@@ -6,6 +6,7 @@ namespace ProductionDocumentationServer.Data.Repositories
     public interface IReportSectionsRepository
     {
         Task<ReportSections> Get();
+
         Task Post(IEnumerable<string> sections);
     }
 }

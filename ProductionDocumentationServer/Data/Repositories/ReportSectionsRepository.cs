@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -24,7 +23,7 @@ namespace ProductionDocumentationServer.Data.Repositories
 
         public async Task Post(IEnumerable<string> sections)
         {
-            if(sections == null) return;
+            if (sections == null) return;
 
             using (var db = Connection)
             {

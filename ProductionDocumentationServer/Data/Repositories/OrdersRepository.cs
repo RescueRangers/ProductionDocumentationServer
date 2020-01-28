@@ -1,9 +1,8 @@
-﻿using Dapper;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
+using Microsoft.Extensions.Configuration;
 
 namespace ProductionDocumentationServer.Data.Repositories
 {
@@ -40,11 +39,11 @@ WHERE OrderNumber = @OrderNumber;";
 
             using (var db = Connection)
             {
-                var id = await db.QueryFirstOrDefaultAsync<int>(query, new { orderNumber}).ConfigureAwait(false);
+                var id = await db.QueryFirstOrDefaultAsync<int>(query, new { orderNumber }).ConfigureAwait(false);
 
                 if (id == 0)
                 {
-                    id = await db.QueryFirstOrDefaultAsync<int>(insertQuery, new{ orderNumber}).ConfigureAwait(false);
+                    id = await db.QueryFirstOrDefaultAsync<int>(insertQuery, new { orderNumber }).ConfigureAwait(false);
                 }
 
                 return id;

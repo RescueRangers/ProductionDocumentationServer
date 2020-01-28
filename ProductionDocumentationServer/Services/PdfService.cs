@@ -1,7 +1,7 @@
-﻿using jsreport.AspNetCore;
-using ProductionDocumentationServer.Data;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
+using jsreport.AspNetCore;
+using ProductionDocumentationServer.Data;
 
 namespace ProductionDocumentationServer.Services
 {
