@@ -340,3 +340,5 @@ ASALocalRun/
 healthchecksdb
 
 /ProductionDocumentationServer/wwwroot/uploads/*
+/ProductionDocumentationServer/appsettings.registry.hub.docker.com_dickmarcinko.json
+/ProductionDocumentationServer/appsettings.Release.json

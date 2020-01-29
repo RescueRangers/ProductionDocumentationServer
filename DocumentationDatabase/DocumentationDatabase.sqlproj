@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DocumentationDatabase.publish.xml" />
+    <None Include="DocumentationDatabase_Debug.publish.xml" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="DocumentationDatabase.refactorlog" />
