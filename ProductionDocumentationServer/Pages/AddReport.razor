@@ -20,7 +20,7 @@
     <form>
         <div class="form-row mb-3">
             <div class="col">
-                <input type="text" list="orders" class="form-control" @bind="@_selectedOrder" placeholder="Order number" />
+                <input type="text" list="orders" maxlength="50" class="form-control" @bind="@_selectedOrder" placeholder="Order number" />
                 <datalist id="orders">
                     @if (_orders != null)
                     {
@@ -34,7 +34,7 @@
         </div>
         <div class="form-row mb-3">
             <div class="col">
-                <input type="text" list="itemNumbers" class="form-control" @bind="@_selectedItemNumber" placeholder="Item number" />
+                <input type="text" list="itemNumbers" maxlength="18" class="form-control" @bind="@_selectedItemNumber" placeholder="Item number" />
                 <datalist id="itemNumbers">
                     @if (_itemNumbers != null)
                     {
@@ -46,7 +46,7 @@
                 </datalist>
             </div>
             <div class="col">
-                <input type="text" list="itemNames" class="form-control" @bind="@_selectedItemName" placeholder="Item name" />
+                <input type="text" maxlength="50" list="itemNames" class="form-control" @bind="@_selectedItemName" placeholder="Item name" />
                 <datalist id="itemNames">
                     @if (_itemNames != null)
                     {
@@ -65,7 +65,7 @@
             <button @onclick="GenerateTimeCode" class="btn btn-success form-control">Generate time code</button>
         </div>
         <div class="col">
-            <input type="text" class="text-center form-control" @bind-value="_timeCode" />
+            <input type="text" maxlength="18" class="text-center form-control" @bind-value="_timeCode" />
         </div>
     </div>
 
