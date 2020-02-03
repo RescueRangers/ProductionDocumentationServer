@@ -22,6 +22,7 @@ else
         <tr>
             <th scope="col">#</th>
             <th scope="col">Date</th>
+            <th scope="col">Time code</th>
             <th scope="col">Item number</th>
             <th scope="col">Item Name</th>
             <th scope="col"></th>
@@ -33,6 +34,7 @@ else
         <tr>
             <th scope="row">@i</th>
             <td>@_reports[i - 1].Date.ToString("yyyy-MM-dd hh:mm")</td>
+            <td>@_reports[i - 1].TimeCode</td>
             <td>@_reports[i - 1].ItemNumber</td>
             <td>@_reports[i - 1].ItemName</td>
             <td>

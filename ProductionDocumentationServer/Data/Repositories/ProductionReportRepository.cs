@@ -79,6 +79,7 @@ SELECT [Id]
 SELECT
        [Id]
       ,[Date]
+      ,[TimeCode]
       ,[ItemName]
       ,[ItemNumber]
   FROM [dbo].[ProductionReports]
