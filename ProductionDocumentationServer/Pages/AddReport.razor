@@ -62,10 +62,10 @@
 
     <div class="form-row mb-3">
         <div class="col">
-            <button @onclick="GenerateTimeCode" class="btn btn-success">Generate time code</button>
+            <button @onclick="GenerateTimeCode" class="btn btn-success form-control">Generate time code</button>
         </div>
         <div class="col border-info border ">
-            <p class="text-center mt-2 mb-0">@_timeCode</p>
+            <input type="text" class="text-center form-control" @bind-value="_timeCode" />
         </div>
     </div>
 
