@@ -5,5 +5,5 @@
     [ItemName] NVARCHAR(50) NULL, 
     [ItemNumber] NVARCHAR(18) NULL, 
     [OrderId] INT NULL, 
-    [TimeCode] NVARCHAR(12) NULL 
+    [TimeCode] NVARCHAR(18) NULL 
 )
