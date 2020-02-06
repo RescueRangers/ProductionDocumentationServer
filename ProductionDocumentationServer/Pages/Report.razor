@@ -7,8 +7,6 @@
 @inject IPdfService _pdfService
 @inject IJSRuntime js
 
-<h3>Report</h3>
-
 @if (_report == null)
 {
     <div class="progress">
@@ -19,35 +17,108 @@
 }
 else
 {
-    @foreach (var item in _report.ReportPictures)
-    {
-        <div class="row mb-3">
-            <div class="col-12">
-                <h3>@item.SectionName</h3>
+    <div class='container'>
+        <div class='row justify-content-center mb-4'>
+            <div class='col'>
+                <p style="font-family: robot; letter-spacing: 6px;" class='h1 text-center text-muted'>Vest-Fiber</p>
+                <p class='h6 text-center text-muted'>
+                    Piłsudskiego 11 - 74-400 Dębno - Tel. +48 534831621 - CoRegNo 597-172-75-69
+                </p>
             </div>
-            <div class="col-12"><img class="img-fluid" src="@item.PictureUrl" /></div>
         </div>
-    }
+        <div class='row justify-content-center mb-3'>
+            <div class='col'>
+                <p style="letter-spacing: 3px;" class='h2'>Production report</p>
+            </div>
+        </div>
 
-    <button class="btn btn-outline-success mb-4" @onclick="@GeneratePdf">Download report</button>
-}
+        <div class='row mb-5'>
+            <div class='col-5 pt-2 h5'>
+                <div class="row">
+                    <div class="col-5">
+                        <strong>Order number:</strong>
+                    </div>
+                    <div class="col-7">
+                        @_report.OrderNumber
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-5">
+                        <strong>Item number:</strong>
+                    </div>
+                    <div class="col-7">
+                        @_report.ItemNumber
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-5">
+                        <strong>Item name:</strong>
+                    </div>
+                    <div class="col-7">
+                        @_report.ItemName
+                    </div>
+                </div>
 
-@code {
-    [Parameter] public string Id { get; set; }
-    ProductionReport _report;
+            </div>
+            <div class='col-4 offset-3 h5'>
 
-    protected override async Task OnInitializedAsync()
-    {
-        if (int.TryParse(Id, out var intId))
+                <div class="row ">
+                    <div class="col-4">
+                        <strong>Date:</strong>
+                    </div>
+                    <div class="col-8 ">
+                        @_report.Date.ToShortDateString()
+                    </div>
+                </div>
+                <div class="row ">
+                    <div class="col-4">
+                        <strong>Number:</strong>
+                    </div>
+                    <div class="col-8">
+                        @_report.Id
+                    </div>
+                </div>
+                <div class="row ">
+                    <div class="col-4">
+                        <strong>Code:</strong>
+                    </div>
+                    <div class="col-8">
+                        @_report.TimeCode
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @foreach (var item in _report.ReportPictures)
         {
-            _report = await _reportsRepo.GetById(intId).ConfigureAwait(false);
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h3>@item.SectionName</h3>
+                </div>
+                <div class="col-12"><img class="img-fluid" src="@item.PictureUrl" /></div>
+            </div>
         }
-    }
 
-    async Task GeneratePdf()
-    {
-        var result = await _pdfService.GeneratePdfReport(_report);
+        <button class="btn btn-outline-success mb-4" @onclick="@GeneratePdf">Download report</button>
+        </div>
+        }
 
-        await FileUtil.SaveAs(js, "Report.pdf", result);
-    }
-}
+        @code {
+    [Parameter] public string Id { get; set; }
+        ProductionReport _report;
+
+        protected override async Task OnInitializedAsync()
+        {
+            if (int.TryParse(Id, out var intId))
+            {
+                _report = await _reportsRepo.GetById(intId).ConfigureAwait(false);
+            }
+        }
+
+        async Task GeneratePdf()
+        {
+            var result = await _pdfService.GeneratePdfReport(_report);
+
+            await FileUtil.SaveAs(js, "Report.pdf", result);
+        }
+        }

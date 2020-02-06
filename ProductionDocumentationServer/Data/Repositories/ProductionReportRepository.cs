@@ -50,8 +50,10 @@ SELECT
       ,[Date]
       ,[ItemName]
       ,[ItemNumber]
+      ,[TimeCode]
       ,[OrderId]
-  FROM [dbo].[ProductionReports] A";
+  FROM [dbo].[ProductionReports]
+  WHERE Id = @Id";
 
             const string picturesSql = @"
 SELECT [Id]
