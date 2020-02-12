@@ -1,3 +1,4 @@
+using Blazor.FileReader;
 using Blazored.Toast;
 using jsreport.AspNetCore;
 using jsreport.Client;
@@ -25,7 +26,12 @@ namespace ProductionDocumentationServer
         public static void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
-            services.AddServerSideBlazor();
+            services.AddServerSideBlazor().AddHubOptions(o =>
+            {
+                o.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
+            });
+
+            services.AddFileReaderService();
             services.AddSingleton<IProductionReportsRepository, ProductionReportsRepository>();
             services.AddSingleton<IReportSectionsRepository, ReportSectionsRepository>();
             services.AddSingleton<IItemNamesRepository, ItemNamesRepository>();

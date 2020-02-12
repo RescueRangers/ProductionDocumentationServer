@@ -1,14 +1,15 @@
 ﻿@page "/"
-@using BlazorInputFile
 @using Data
 @using SkiaSharp
 @using System.IO
 @using Microsoft.AspNetCore.Hosting;
 @using Services
 @using Blazored.Toast
+@using Blazor.FileReader
 @inject IToastService toastService
 @inject IWebHostEnvironment _environment
 @inject IReportsService _reportsService
+@inject IFileReaderService fileReaderService
 
 <BlazoredToasts />
 
@@ -73,31 +74,37 @@
     {
         @foreach (var item in _pictures)
         {
-            <div class="row mb-3">
-                <div class="col-sm-12 col-md-6">
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">Section</span>
-                        </div>
-                        <input type="text" class="form-control" list="sections" @bind="item.SectionName" />
-                        <datalist id="sections">
-                            @foreach (var reportSection in _reportSections.Sections)
-                            {
-                                <option value="@reportSection">@reportSection</option>
-                            }
-                        </datalist>
-                        <div class="input-group-append">
-                            <label class="btn pb-0 mb-0 btn-outline-dark">
-                                <InputFile OnChange="HandleFileSelected" capture="environment" accept="image/*" />
-                                <i class="oi oi-cloud-upload"></i> Upload
-                            </label>
+            <div class="border border-info rounded p-3 align-items-center mb-3" style="border-style: dashed !important;">
+                <div class="row mb-2">
+                    <div class="col-sm-12 col-md-6">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Section</span>
+                            </div>
+                            <input type="text" class="form-control" list="sections" @bind-value="item.SectionName" @bind-value:event="oninput" />
+                            <datalist id="sections">
+                                @foreach (var reportSection in _reportSections.Sections)
+                                {
+                                    <option value="@reportSection">@reportSection</option>
+                                }
+                            </datalist>
+                            <div class="input-group-append">
+                                <label class="btn pb-0 mb-0 btn-outline-dark">
+                                    <input type="file" capture="camera" accept="image/*" @ref=_inputElement @onchange="@HandleFileSelected" />
+                                    <i class="oi oi-cloud-upload"></i> Upload
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-sm-12 col-md-6">
-                    <img src="@item.PictureUrl" style="max-height:600px" class="img-fluid" alt="" />
+                <div class="row mb-3">
+                    <div class="col-sm-12 col-md-6">
+                        <img src="@item.PictureUrl" style="max-height:600px" class="img-fluid" alt="" />
+                    </div>
                 </div>
+
+                <button class="btn btn-danger" @onclick="@(() => RemovePicture(item.GuId))">Remove</button>
             </div>
 
         }
@@ -145,6 +152,9 @@
     List<Order> _orders;
     string _selectedOrder;
     string _timeCode;
+    ElementReference _inputElement;
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -162,14 +172,32 @@
         _pictures = new List<ReportPicture>();
     }
 
-    async Task HandleFileSelected(IFileListEntry[] files)
+    private void RemovePicture(string guid)
     {
+        var picture = _pictures.FirstOrDefault(x => x.GuId == guid);
+
+        if (picture != null)
+        {
+            _pictures.Remove(picture);
+        }
+    }
+
+    async Task HandleFileSelected()
+    {
+        var files = (await fileReaderService.CreateReference(_inputElement).EnumerateFilesAsync()).ToList();
+
+        if (files.Count < 1)
+        {
+            return;
+        }
+
         var file = files.FirstOrDefault();
 
         var path = Path.GetTempFileName();
         using (var stream = new FileStream(path, FileMode.Create))
         {
-            await file.Data.CopyToAsync(stream).ConfigureAwait(false);
+            var s = await file.OpenReadAsync();
+            await s.CopyToAsync(stream);
         }
 
         var desiredWidth = 800;
@@ -258,7 +286,7 @@
                 toastService.ShowError("Failure when adding to the database");
             }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             toastService.ShowError("Failure when adding to the database. You may have to reload the application.");
             throw e;
