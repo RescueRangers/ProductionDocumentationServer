@@ -35,28 +35,10 @@
         </div>
         <div class="form-row mb-3">
             <div class="col">
-                <input type="text" list="itemNumbers" maxlength="18" class="form-control" @bind="@_selectedItemNumber" placeholder="Item number" />
-                <datalist id="itemNumbers">
-                    @if (_itemNumbers != null)
-                    {
-                        @foreach (var itemNumber in _itemNumbers)
-                        {
-                            <option value="@itemNumber">@itemNumber</option>
-                        }
-                    }
-                </datalist>
+                <input type="text" autocomplete="on" id="itemNumbers" maxlength="18" class="form-control" @bind="@_selectedItemNumber" placeholder="Item number" />
             </div>
             <div class="col">
-                <input type="text" maxlength="50" list="itemNames" class="form-control" @bind="@_selectedItemName" placeholder="Item name" />
-                <datalist id="itemNames">
-                    @if (_itemNames != null)
-                    {
-                        @foreach (var itemName in _itemNames)
-                        {
-                            <option value="@itemName">@itemName</option>
-                        }
-                    }
-                </datalist>
+                <input type="text" maxlength="50" autocomplete="on" id="itemNames" class="form-control" @bind="@_selectedItemName" placeholder="Item name" />
             </div>
         </div>
     </form>
