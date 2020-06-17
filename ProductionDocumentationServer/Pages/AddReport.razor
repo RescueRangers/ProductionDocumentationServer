@@ -57,13 +57,8 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Section</span>
                             </div>
-                            <input type="text" class="form-control" list="sections" @bind-value="item.SectionName" @bind-value:event="oninput" />
-                            <datalist id="sections">
-                                @foreach (var reportSection in _reportSections.Sections)
-                                {
-                                    <option value="@reportSection">@reportSection</option>
-                                }
-                            </datalist>
+                            <input type="text" class="form-control" autocomplete="on" id="Section" @bind-value="item.SectionName" @bind-value:event="oninput" />
+
                             <SfUploader AutoUpload="true" Multiple="false" AllowedExtensions=".jpg, .gif, .png" ShowFileList="true" Locale="pl">
                                 <UploaderEvents ValueChange="OnFileUpload"></UploaderEvents>
                             </SfUploader>
@@ -121,8 +116,8 @@
     List<Order> _orders;
     string _selectedOrder;
     string _timeCode;
-    
-    
+
+
     protected override async Task OnInitializedAsync()
     {
         StartUp();

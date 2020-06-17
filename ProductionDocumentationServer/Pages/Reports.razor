@@ -1,4 +1,5 @@
-﻿@page "/reports/{OrderId}"
+﻿@page "/reports/"
+@page "/reports/{OrderId}"
 
 @using ProductionDocumentationServer.Data
 @using ProductionDocumentationServer.Data.Repositories
@@ -16,16 +17,16 @@
     <GridSearchSettings IgnoreAccent="true" IgnoreCase="true"></GridSearchSettings>
     <GridEvents CommandClicked="OnCommandClicked" TValue="ProductionReport"></GridEvents>
     <SfDataManager AdaptorInstance="@typeof(ProductionDocumentationServer.Data.DataAdaptors.ReportsAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
-    <GridEditSettings AllowAdding="false" AllowEditing="false" AllowDeleting="false" Mode="EditMode.Normal"></GridEditSettings>
+    <GridEditSettings AllowAdding="false" AllowEditing="true" AllowDeleting="false" Mode="EditMode.Normal"></GridEditSettings>
     <GridSelectionSettings Type="SelectionType.Single"></GridSelectionSettings>
     <GridEvents OnToolbarClick="ToolbarClick" TValue="ProductionReport"></GridEvents>
     <GridColumns>
         <GridColumn Field="@nameof(ProductionReport.Id)" HeaderText="Id" IsPrimaryKey="false" Visible="false" IsIdentity="true"></GridColumn>
-        <GridColumn Field=@nameof(ProductionReport.Date) HeaderText="Date" Format="d" Type="ColumnType.Date" Width="80"></GridColumn>
-        <GridColumn Field=@nameof(ProductionReport.MaterialDate) HeaderText="Material date" Format="d" Type="ColumnType.Date" Width="80"></GridColumn>
+        <GridColumn Field=@nameof(ProductionReport.Date) HeaderText="Date" AllowEditing="false" Format="d" Type="ColumnType.Date" Width="80"></GridColumn>
+        <GridColumn Field=@nameof(ProductionReport.MaterialDate) HeaderText="Material date" AllowEditing="false" Format="d" Type="ColumnType.Date" Width="80"></GridColumn>
         <GridColumn Field=@nameof(ProductionReport.TimeCode) HeaderText="Time Code" Width="80"></GridColumn>
-        <GridColumn Field=@nameof(ProductionReport.ItemNumber) HeaderText="Item Numkber" Width="80"></GridColumn>
-        <GridColumn Field=@nameof(ProductionReport.ItemName) HeaderText="Item name" Width="80"></GridColumn>
+        <GridColumn Field=@nameof(ProductionReport.ItemNumber) HeaderText="Item Numkber" AllowEditing="false" Width="80"></GridColumn>
+        <GridColumn Field=@nameof(ProductionReport.ItemName) HeaderText="Item name" AllowEditing="false" Width="80"></GridColumn>
         <GridColumn HeaderText=" " Width="180" TextAlign="TextAlign.Center">
             <GridCommandColumns>
                 <GridCommandColumn ButtonOption="@(new CommandButtonOptions() { Content = "Open" })"></GridCommandColumn>
@@ -43,6 +44,11 @@
 
     public Query GetQuery()
     {
+        if (string.IsNullOrWhiteSpace(OrderId))
+        {
+            return new Query();
+        }
+
         return new Query().AddParams("OrderId", OrderId);
     }
 

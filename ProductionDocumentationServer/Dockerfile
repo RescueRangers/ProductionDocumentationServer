@@ -18,6 +18,9 @@ RUN chmod -x libSkiaSharp.so
 
 
 FROM base AS final
+RUN apt-get update; apt-get install locales -y
+RUN locale-gen en_US.UTF-8
+ENV LANG='pl_PL.UTF-8' LANGUAGE='pl_PL:en' LC_ALL='pl_PL.UTF-8'
 WORKDIR /app
 COPY --from=publish /app/publish .
 RUN apt-get update; apt-get install libfontconfig1 -y

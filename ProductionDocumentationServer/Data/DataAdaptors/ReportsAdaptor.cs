@@ -20,13 +20,27 @@ namespace ProductionDocumentationServer.Data.DataAdaptors
 
         public override async Task<object> ReadAsync(DataManagerRequest dm, string key = null)
         {
-            var hasKey = dm.Params.TryGetValue("OrderId", out var orderId);
+            IEnumerable<ProductionReport> reports = null;
+            if (dm?.Params == null)
+            {
+                reports = await _productionReportsRepository.Get().ConfigureAwait(false);
+            }
+            else
+            {
+                var hasKey = dm.Params.TryGetValue("OrderId", out var orderId);
 
-            if (!hasKey) return null;
-            var isValid = int.TryParse(orderId.ToString(), out var id);
-            if(!isValid) return null;
+                if (!hasKey)
+                {
+                    return null;
+                }
+                else
+                {
+                    var isValid = int.TryParse(orderId.ToString(), out var id);
+                    if (!isValid) return null;
 
-            var reports = await _productionReportsRepository.GetByOrder(id).ConfigureAwait(false);
+                    reports = await _productionReportsRepository.GetByOrder(id).ConfigureAwait(false);
+                }
+            }
             if (dm.Search?.Count > 0)
             {
                 try
@@ -58,6 +72,16 @@ namespace ProductionDocumentationServer.Data.DataAdaptors
             }
 
             return dm.RequiresCounts ? new DataResult { Result = reports, Count = count } : (object)reports;
+        }
+
+        public override async Task<object> UpdateAsync(DataManager dataManager, object data, string keyField, string key)
+        {
+            if (data is ProductionReport report)
+            {
+                await _productionReportsRepository.UpdateReport(report).ConfigureAwait(false);
+                return report;
+            }
+            return null;
         }
     }
 }

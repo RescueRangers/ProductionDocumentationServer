@@ -94,5 +94,20 @@ SELECT
                 return r.ToList();
             }
         }
+
+        public async Task UpdateReport(ProductionReport report)
+        {
+            var sql = $@"
+UPDATE ProductionReports SET
+    {nameof(ProductionReport.Date)} = @{nameof(ProductionReport.Date)},
+    {nameof(ProductionReport.ItemName)} = @{nameof(ProductionReport.ItemName)},
+    {nameof(ProductionReport.ItemNumber)} = @{nameof(ProductionReport.ItemNumber)},
+    {nameof(ProductionReport.TimeCode)} = @{nameof(ProductionReport.TimeCode)}
+WHERE {nameof(ProductionReport.Id)} = @{nameof(ProductionReport.Id)}";
+            using (var db = Connection)
+            {
+                await db.ExecuteAsync(sql, new{ Date = report.Date, ItemName = report.ItemName, ItemNumber = report.ItemNumber, TimeCode = report.TimeCode, Id = report.Id}).ConfigureAwait(false);
+            }
+        }
     }
 }
