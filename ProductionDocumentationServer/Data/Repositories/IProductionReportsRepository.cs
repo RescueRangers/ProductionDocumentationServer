@@ -11,6 +11,6 @@ namespace ProductionDocumentationServer.Data.Repositories
 
         Task<ProductionReport> GetById(int id);
 
-        Task<List<ProductionReport>> GetByOrder(int orderId);
+        Task<IEnumerable<ProductionReport>> GetByOrder(int orderId);
     }
 }

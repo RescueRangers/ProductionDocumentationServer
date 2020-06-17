@@ -75,7 +75,7 @@ SELECT [Id]
             }
         }
 
-        public async Task<List<ProductionReport>> GetByOrder(int orderId)
+        public async Task<IEnumerable<ProductionReport>> GetByOrder(int orderId)
         {
             const string sql = @"
 SELECT

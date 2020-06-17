@@ -2,58 +2,70 @@
 
 @using ProductionDocumentationServer.Data
 @using ProductionDocumentationServer.Data.Repositories
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Grids
+
 @inject IProductionReportsRepository _reportsRepo
+@inject NavigationManager _navManager
 @inject IOrdersRepository _ordersRepo
 
 <h3>Reports</h3>
 
-@if (_reports == null)
-{
-<div class="progress">
-    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-        <span>Please wait<span class="dotdotdot"></span></span>
-    </div>
-</div>
-}
-else
-{
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Date</th>
-            <th scope="col">Materia Date</th>
-            <th scope="col">Time code</th>
-            <th scope="col">Item number</th>
-            <th scope="col">Item Name</th>
-            <th scope="col"></th>
-        </tr>
-    </thead>
-    <tbody>
-        @for (int i = 1; i <= _reports.Count(); i++)
-            {
-        <tr>
-            <th scope="row">@i</th>
-            <td>@_reports[i - 1].Date.ToString("yyyy-MM-dd hh:mm")</td>
-            <td>@((new DateTime(ProductionDocumentationServer.Services.Base36.Base36ToNumber(_reports[i - 1].TimeCode))).ToString("yyyy-MM-dd"))</td>
-            <td>@_reports[i - 1].TimeCode</td>
-            <td>@_reports[i - 1].ItemNumber</td>
-            <td>@_reports[i - 1].ItemName</td>
-            <td>
-                <a href="/report/@_reports[i-1].Id"><span class="oi oi-eye"></span></a>
-            </td>
-        </tr>
-            }
-    </tbody>
-</table>
-
-}
+<SfGrid AllowTextWrap="false" TValue="ProductionReport" ID="Grid" @ref="Grid" AllowPaging="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true"
+        AllowSorting="true" Toolbar="@(new List<string>() { "ExcelExport", "Search"})" Query="GetQuery()">
+    <GridSearchSettings IgnoreAccent="true" IgnoreCase="true"></GridSearchSettings>
+    <GridEvents CommandClicked="OnCommandClicked" TValue="ProductionReport"></GridEvents>
+    <SfDataManager AdaptorInstance="@typeof(ProductionDocumentationServer.Data.DataAdaptors.ReportsAdaptor)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
+    <GridEditSettings AllowAdding="false" AllowEditing="false" AllowDeleting="false" Mode="EditMode.Normal"></GridEditSettings>
+    <GridSelectionSettings Type="SelectionType.Single"></GridSelectionSettings>
+    <GridEvents OnToolbarClick="ToolbarClick" TValue="ProductionReport"></GridEvents>
+    <GridColumns>
+        <GridColumn Field="@nameof(ProductionReport.Id)" HeaderText="Id" IsPrimaryKey="false" Visible="false" IsIdentity="true"></GridColumn>
+        <GridColumn Field=@nameof(ProductionReport.Date) HeaderText="Date" Format="d" Type="ColumnType.Date" Width="80"></GridColumn>
+        <GridColumn Field=@nameof(ProductionReport.MaterialDate) HeaderText="Material date" Format="d" Type="ColumnType.Date" Width="80"></GridColumn>
+        <GridColumn Field=@nameof(ProductionReport.TimeCode) HeaderText="Time Code" Width="80"></GridColumn>
+        <GridColumn Field=@nameof(ProductionReport.ItemNumber) HeaderText="Item Numkber" Width="80"></GridColumn>
+        <GridColumn Field=@nameof(ProductionReport.ItemName) HeaderText="Item name" Width="80"></GridColumn>
+        <GridColumn HeaderText=" " Width="180" TextAlign="TextAlign.Center">
+            <GridCommandColumns>
+                <GridCommandColumn ButtonOption="@(new CommandButtonOptions() { Content = "Open" })"></GridCommandColumn>
+            </GridCommandColumns>
+        </GridColumn>
+    </GridColumns>
+</SfGrid>
 
 @code {
     [Parameter] public string OrderId { get; set; }
 
     List<ProductionReport> _reports;
     List<Order> _orders;
+    SfGrid<ProductionReport> Grid;
+
+    public Query GetQuery()
+    {
+        return new Query().AddParams("OrderId", OrderId);
+    }
+
+    public void ToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Id == "Grid_pdfexport")
+        {
+            this.Grid.PdfExport();
+        }
+        if (args.Item.Id == "Grid_excelexport")
+        {
+            this.Grid.ExcelExport();
+        }
+        if (args.Item.Id == "Grid_csvexport")
+        {
+            this.Grid.CsvExport();
+        }
+    }
+
+    public void OnCommandClicked(CommandClickEventArgs<ProductionReport> args)
+    {
+        _navManager.NavigateTo($"/report/{args.RowData.Id}");
+    }
 
     protected override async Task OnInitializedAsync()
     {

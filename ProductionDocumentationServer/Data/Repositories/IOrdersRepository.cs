@@ -5,7 +5,7 @@ namespace ProductionDocumentationServer.Data.Repositories
 {
     public interface IOrdersRepository
     {
-        Task<List<Order>> Get();
+        Task<IEnumerable<Order>> Get();
 
         Task<Order> GetbyId(int id);
 

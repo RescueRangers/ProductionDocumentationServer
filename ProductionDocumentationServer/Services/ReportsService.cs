@@ -54,7 +54,8 @@ namespace ProductionDocumentationServer.Services
 
         public async Task<List<Order>> GetOrders()
         {
-            return await _ordersRepo.Get().ConfigureAwait(false);
+            var orders = await _ordersRepo.Get().ConfigureAwait(false);
+            return new List<Order>(orders);
         }
 
         public async Task<int> GetOrderId(string orderNumber)

@@ -11,7 +11,7 @@ namespace ProductionDocumentationServer.Data.Repositories
         public OrdersRepository(IConfiguration config) : base(config)
         { }
 
-        public async Task<List<Order>> Get()
+        public async Task<IEnumerable<Order>> Get()
         {
             using (var db = Connection)
             {

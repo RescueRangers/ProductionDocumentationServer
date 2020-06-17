@@ -6,6 +6,9 @@
 @using Services
 @using Blazored.Toast
 @using Blazor.FileReader
+@using Syncfusion.Blazor.ProgressBar
+@using Syncfusion.Blazor.Inputs
+
 @inject IToastService toastService
 @inject IWebHostEnvironment _environment
 @inject IReportsService _reportsService
@@ -43,12 +46,6 @@
         </div>
     </div>
 
-    <div class="@progressDisplay">
-        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-            <span>Please wait<span class="dotdotdot"></span></span>
-        </div>
-    </div>
-
     @if (_pictures != null)
     {
         @foreach (var item in _pictures)
@@ -67,12 +64,9 @@
                                     <option value="@reportSection">@reportSection</option>
                                 }
                             </datalist>
-                            <div class="input-group-append">
-                                <label class="btn pb-0 mb-0 btn-outline-dark">
-                                    <input type="file" capture="camera" accept="image/*" @ref=_inputElement @onchange="@HandleFileSelected" />
-                                    <i class="oi oi-cloud-upload"></i> Upload
-                                </label>
-                            </div>
+                            <SfUploader AutoUpload="true" Multiple="false" AllowedExtensions=".jpg, .gif, .png" ShowFileList="true" Locale="pl">
+                                <UploaderEvents ValueChange="OnFileUpload"></UploaderEvents>
+                            </SfUploader>
                         </div>
                     </div>
                 </div>
@@ -94,9 +88,9 @@
             <button class="btn btn-success" @onclick="AddPicture">Add picture</button>
         </div>
         <div class="col-6">
-            <label class="btn btn-primary" for="my-file-selector">
-                Add multiple <input id="my-file-selector" type="file" multiple accept="image/*" @ref=_multipleFilesInput @onchange="@HandleMultipleFilesSelected" class="d-none">
-            </label>
+            <SfUploader AutoUpload="true" Multiple="true" AllowedExtensions=".jpg, .gif, .png" ShowFileList="true" Locale="pl">
+                <UploaderEvents ValueChange="OnMultipleFileUpload"></UploaderEvents>
+            </SfUploader>
         </div>
     </div>
 
@@ -127,12 +121,8 @@
     List<Order> _orders;
     string _selectedOrder;
     string _timeCode;
-    ElementReference _inputElement;
-    ElementReference _multipleFilesInput;
-    public string progressDisplay { get { return _saving? "progress" : "d-none";} }
-
-
-
+    
+    
     protected override async Task OnInitializedAsync()
     {
         StartUp();
@@ -141,6 +131,11 @@
         _itemNumbers = await _reportsService.GetItemNumbers();
         _reportSections = await _reportsService.GetReportSections();
         _timeCode = null;
+    }
+
+    protected async Task OnAfterRender()
+    {
+        await fileReaderService.EnsureInitializedAsync();
     }
 
     private void StartUp()
@@ -159,54 +154,29 @@
         }
     }
 
-    async Task HandleMultipleFilesSelected()
+    public void OnFileUpload(UploadChangeEventArgs args)
     {
-        var files = (await fileReaderService.CreateReference(_multipleFilesInput).EnumerateFilesAsync()).ToList();
-
-        if (files.Count < 1)
+        foreach (var file in args.Files)
         {
-            return;
+            ProcessFile(file);
         }
+    }
 
-        _saving = true;
-
-        foreach (var file in files)
+    public void OnMultipleFileUpload(UploadChangeEventArgs args)
+    {
+        foreach (var file in args.Files)
         {
             _pictures.Add(new ReportPicture());
-            await ProcessFile(file);
+            ProcessFile(file);
         }
-
-        _saving = false;
     }
 
-    async Task HandleFileSelected()
+    private void ProcessFile(Syncfusion.Blazor.Inputs.Internal.UploadFiles file)
     {
-        var files = (await fileReaderService.CreateReference(_inputElement).EnumerateFilesAsync()).ToList();
-
-        if (files.Count < 1)
+        file.Stream.Position = 0;
+        using (var codec = SKCodec.Create(file.Stream))
         {
-            return;
-        }
-
-        var file = files.FirstOrDefault();
-
-        await ProcessFile(file);
-    }
-
-    private async Task ProcessFile(IFileReference file)
-    {
-        var path = Path.GetTempFileName();
-        using (var stream = new FileStream(path, FileMode.Create))
-        {
-            var s = await file.OpenReadAsync();
-            await s.CopyToAsync(stream);
-        }
-
-        var desiredWidth = 800;
-
-        // create the codec
-        using (var codec = SKCodec.Create(path))
-        {
+            var desiredWidth = 800;
             var info = codec.Info;
 
             // get the scale that is nearest to what we want (eg: jpg returned 512)

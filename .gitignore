@@ -343,3 +343,4 @@ healthchecksdb
 /ProductionDocumentationServer/appsettings.registry.hub.docker.com_dickmarcinko.json
 /ProductionDocumentationServer/appsettings.Release.json
 /ProductionDocumentationServer/logs
+/ProductionDocumentationServer/appsettings.Development.json
