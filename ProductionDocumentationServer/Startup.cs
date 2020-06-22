@@ -2,7 +2,6 @@ using Blazor.FileReader;
 using Blazored.Toast;
 using jsreport.AspNetCore;
 using jsreport.Client;
-using jsreport.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -33,6 +32,7 @@ namespace ProductionDocumentationServer
             {
                 o.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
             });
+            services.AddResponseCompression();
 
             var key = Configuration.GetValue<string>("SyncfusionLicense");
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(key);
@@ -63,8 +63,10 @@ namespace ProductionDocumentationServer
             else
             {
                 app.UseExceptionHandler("/Error");
+                app.UseHsts();
             }
-
+            app.UseHttpsRedirection();
+            app.UseResponseCompression();
             app.UseStaticFiles();
 
             app.UseRouting();

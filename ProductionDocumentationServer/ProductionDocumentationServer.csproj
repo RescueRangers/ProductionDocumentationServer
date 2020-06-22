@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <AssemblyOriginatorKeyFile />
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,6 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\Scripts\" />
     <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 
@@ -73,6 +75,9 @@
   <ItemGroup>
     <Content Update="appsettings.json">
       <TransformOnBuild>true</TransformOnBuild>
+    </Content>
+    <Content Update="wwwroot\manfest.json">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

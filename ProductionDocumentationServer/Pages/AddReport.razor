@@ -6,13 +6,11 @@
 @using Services
 @using Blazored.Toast
 @using Blazor.FileReader
-@using Syncfusion.Blazor.ProgressBar
 @using Syncfusion.Blazor.Inputs
 
 @inject IToastService toastService
 @inject IWebHostEnvironment _environment
 @inject IReportsService _reportsService
-@inject IFileReaderService fileReaderService
 
 <BlazoredToasts />
 
@@ -117,7 +115,6 @@
     string _selectedOrder;
     string _timeCode;
 
-
     protected override async Task OnInitializedAsync()
     {
         StartUp();
@@ -126,11 +123,6 @@
         _itemNumbers = await _reportsService.GetItemNumbers();
         _reportSections = await _reportsService.GetReportSections();
         _timeCode = null;
-    }
-
-    protected async Task OnAfterRender()
-    {
-        await fileReaderService.EnsureInitializedAsync();
     }
 
     private void StartUp()
