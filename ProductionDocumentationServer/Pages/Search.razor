@@ -22,6 +22,8 @@
     </div>
 </div>
 
+<p class="text-muted">@_message</p>
+
 <SfGrid AllowTextWrap="false" TValue="ProductionReport" DataSource="Reports" ID="Grid" @ref="Grid" AllowPaging="true" AllowResizing="true" AllowSelection="true"
         AllowSorting="true">
     <GridSearchSettings IgnoreAccent="true" IgnoreCase="true"></GridSearchSettings>
@@ -46,9 +48,10 @@
 </SfGrid>
 
 @code {
-    public List<ProductionReport> Reports {get; set; } = new List<ProductionReport>();
+    public List<ProductionReport> Reports { get; set; } = new List<ProductionReport>();
     SfGrid<ProductionReport> Grid;
     private string _searchTerm;
+    private string _message = "Search through the reports database...";
 
     public void ToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
     {
@@ -68,10 +71,13 @@
 
     public async Task PerformSearch()
     {
-        if(string.IsNullOrWhiteSpace(_searchTerm)) return;
+        if (string.IsNullOrWhiteSpace(_searchTerm)) return;
 
         var reports = await _reportsRepo.SearchReports(_searchTerm);
         Reports = reports.ToList();
+
+        _message = $"Search found {Reports.Count} elements";
+
         StateHasChanged();
     }
 
