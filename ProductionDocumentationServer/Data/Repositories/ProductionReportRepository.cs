@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace ProductionDocumentationServer.Data.Repositories
 {
@@ -107,6 +108,32 @@ WHERE {nameof(ProductionReport.Id)} = @{nameof(ProductionReport.Id)}";
             using (var db = Connection)
             {
                 await db.ExecuteAsync(sql, new{ Date = report.Date, ItemName = report.ItemName, ItemNumber = report.ItemNumber, TimeCode = report.TimeCode, Id = report.Id}).ConfigureAwait(false);
+            }
+        }
+
+        public async Task<IEnumerable<ProductionReport>> SearchReports(string searchTerm)
+        {
+            var sql = @"
+SET DATEFORMAT dmy;
+IF ISDATE(@searchTerm) = 1
+	SELECT * FROM ProductionReports
+	WHERE DATEDIFF(DAY, Date, @searchTerm) = 0
+ELSE
+    SELECT * FROM ProductionReports
+    WHERE ItemName + ItemNumber + TimeCode LIKE '%' + @searchTerm + '%'";
+            var procedure = "SearchReports";
+            using (var db = Connection)
+            {
+                try
+                {
+                    var reports = await db.QueryAsync<ProductionReport>(sql, new { searchTerm = searchTerm }).ConfigureAwait(false);
+                    return reports;
+                }
+                catch (System.Exception ex)
+                {
+                    Log.Logger.Error(ex.Message, ex);
+                    throw;
+                }
             }
         }
     }

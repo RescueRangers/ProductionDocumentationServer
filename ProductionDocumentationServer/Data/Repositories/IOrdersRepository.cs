@@ -12,5 +12,6 @@ namespace ProductionDocumentationServer.Data.Repositories
         Task Post(Order order);
 
         Task<int> GetOrderId(string orderNumber);
+        Task<string> GetOrderNumber(int orderId);
     }
 }

@@ -13,5 +13,6 @@ namespace ProductionDocumentationServer.Data.Repositories
 
         Task<IEnumerable<ProductionReport>> GetByOrder(int orderId);
         Task UpdateReport(ProductionReport report);
+        Task<IEnumerable<ProductionReport>> SearchReports(string searchTerm);
     }
 }

@@ -57,5 +57,13 @@ WHERE OrderNumber = @OrderNumber;";
                 await db.ExecuteAsync("INSERT INTO Orders(OrderNumber) VALUES(@OrderNumber)", new { order.OrderNumber }).ConfigureAwait(false);
             }
         }
+
+        public async Task<string> GetOrderNumber(int orderId)
+        {
+            using (var db = Connection)
+            {
+                return await db.QueryFirstAsync<string>("SELECT OrderNumber FROM Orders WHERE Id = @Id", new { Id = orderId }).ConfigureAwait(false);
+            }
+        }
     }
 }

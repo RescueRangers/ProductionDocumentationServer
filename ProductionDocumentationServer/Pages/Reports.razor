@@ -1,16 +1,14 @@
-﻿@page "/reports/"
-@page "/reports/{OrderId}"
+﻿@page "/reports/{OrderId:int}"
 
 @using ProductionDocumentationServer.Data
 @using ProductionDocumentationServer.Data.Repositories
 @using Syncfusion.Blazor.Data
 @using Syncfusion.Blazor.Grids
 
-@inject IProductionReportsRepository _reportsRepo
 @inject NavigationManager _navManager
-@inject IOrdersRepository _ordersRepo
+@inject IOrdersRepository _ordersRepository
 
-<h3>Reports</h3>
+<h3>Reports on order @_orderNumber</h3>
 
 <SfGrid AllowTextWrap="false" TValue="ProductionReport" ID="Grid" @ref="Grid" AllowPaging="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true"
         AllowSorting="true" Toolbar="@(new List<string>() { "ExcelExport", "Search"})" Query="GetQuery()">
@@ -24,8 +22,8 @@
         <GridColumn Field="@nameof(ProductionReport.Id)" HeaderText="Id" IsPrimaryKey="false" Visible="false" IsIdentity="true"></GridColumn>
         <GridColumn Field=@nameof(ProductionReport.Date) HeaderText="Date" AllowEditing="false" Format="d" Type="ColumnType.Date" Width="80"></GridColumn>
         <GridColumn Field=@nameof(ProductionReport.MaterialDate) HeaderText="Material date" AllowEditing="false" Format="d" Type="ColumnType.Date" Width="80"></GridColumn>
-        <GridColumn Field=@nameof(ProductionReport.TimeCode) HeaderText="Time Code" Width="80"></GridColumn>
-        <GridColumn Field=@nameof(ProductionReport.ItemNumber) HeaderText="Item Numkber" AllowEditing="false" Width="80"></GridColumn>
+        <GridColumn Field=@nameof(ProductionReport.TimeCode) HeaderText="Time code" Width="80"></GridColumn>
+        <GridColumn Field=@nameof(ProductionReport.ItemNumber) HeaderText="Item number" AllowEditing="false" Width="80"></GridColumn>
         <GridColumn Field=@nameof(ProductionReport.ItemName) HeaderText="Item name" AllowEditing="false" Width="80"></GridColumn>
         <GridColumn HeaderText=" " Width="180" TextAlign="TextAlign.Center">
             <GridCommandColumns>
@@ -36,18 +34,17 @@
 </SfGrid>
 
 @code {
-    [Parameter] public string OrderId { get; set; }
+    [Parameter] public int OrderId { get; set; }
+    private string _orderNumber;
 
-    List<ProductionReport> _reports;
-    List<Order> _orders;
     SfGrid<ProductionReport> Grid;
 
     public Query GetQuery()
     {
-        if (string.IsNullOrWhiteSpace(OrderId))
-        {
-            return new Query();
-        }
+        //if (OrderId == null)
+        //{
+        //    return new Query();
+        //}
 
         return new Query().AddParams("OrderId", OrderId);
     }
@@ -68,18 +65,13 @@
         }
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        _orderNumber = await _ordersRepository.GetOrderNumber(OrderId).ConfigureAwait(false);
+    }
+
     public void OnCommandClicked(CommandClickEventArgs<ProductionReport> args)
     {
         _navManager.NavigateTo($"/report/{args.RowData.Id}");
     }
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (int.TryParse(OrderId, out var id))
-        {
-            var reports = await _reportsRepo.GetByOrder(id).ConfigureAwait(false);
-            _reports = reports.ToList();
-        }
-    }
-
 }
