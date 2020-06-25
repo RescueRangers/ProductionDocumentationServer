@@ -21,13 +21,12 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+      
+    - uses: mr-smithers-excellent/docker-build-push@v3
+      name: Build & push Docker image
       with:
-        path: main
-    - name: DockerBuild
-      uses: docker/build-push-action@v1.1.0
-      with:
+        image: dickmarcinko/productiondocumentationserver
+        tag: latest
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-        path: $GITHUB_WORKSPACE/main/ProductionDocumentationServer/ProductionDocumentationServer/Dockerfile
-        repository: dickmarcinko/productiondocumentationserver
-        tags: latest
+ 
