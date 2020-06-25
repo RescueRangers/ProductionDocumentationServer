@@ -27,6 +27,7 @@ jobs:
       with:
         image: dickmarcinko/productiondocumentationserver
         tag: latest
+        registry: docker.io
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
  
