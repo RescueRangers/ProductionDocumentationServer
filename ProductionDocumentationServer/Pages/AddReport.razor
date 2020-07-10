@@ -81,7 +81,7 @@
             <button class="btn btn-success" @onclick="AddPicture">Add picture</button>
         </div>
         <div class="col-6">
-            <SfUploader AutoUpload="true" Multiple="true" AllowedExtensions=".jpg, .gif, .png" ShowFileList="true" Locale="pl">
+            <SfUploader @ref="_uploader" AutoUpload="true" Multiple="true" AllowedExtensions=".jpg, .gif, .png" ShowFileList="true" Locale="pl">
                 <UploaderEvents ValueChange="OnMultipleFileUpload"></UploaderEvents>
             </SfUploader>
         </div>
@@ -114,6 +114,7 @@
     List<Order> _orders;
     string _selectedOrder;
     string _timeCode;
+    SfUploader _uploader;
 
     protected override async Task OnInitializedAsync()
     {
@@ -147,6 +148,7 @@
         {
             ProcessFile(file);
         }
+
     }
 
     public void OnMultipleFileUpload(UploadChangeEventArgs args)
@@ -249,6 +251,10 @@
         {
             toastService.ShowError("Failure when adding to the database. You may have to reload the application.");
             throw e;
+        }
+        finally
+        {
+            await _uploader.ClearAll();
         }
 
     }

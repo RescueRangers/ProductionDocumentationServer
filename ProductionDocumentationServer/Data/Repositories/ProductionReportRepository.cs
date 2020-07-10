@@ -98,6 +98,8 @@ SELECT
 
         public async Task UpdateReport(ProductionReport report)
         {
+            if(report == null) return;
+
             var sql = $@"
 UPDATE ProductionReports SET
     {nameof(ProductionReport.Date)} = @{nameof(ProductionReport.Date)},
@@ -107,7 +109,7 @@ UPDATE ProductionReports SET
 WHERE {nameof(ProductionReport.Id)} = @{nameof(ProductionReport.Id)}";
             using (var db = Connection)
             {
-                await db.ExecuteAsync(sql, new{ Date = report.Date, ItemName = report.ItemName, ItemNumber = report.ItemNumber, TimeCode = report.TimeCode, Id = report.Id}).ConfigureAwait(false);
+                await db.ExecuteAsync(sql, new { Date = report.Date, ItemName = report.ItemName, ItemNumber = report.ItemNumber, TimeCode = report.TimeCode, Id = report.Id }).ConfigureAwait(false);
             }
         }
 
@@ -121,13 +123,12 @@ IF ISDATE(@searchTerm) = 1
 ELSE
     SELECT * FROM ProductionReports
     WHERE ItemName + ItemNumber + TimeCode LIKE '%' + @searchTerm + '%'";
-            var procedure = "SearchReports";
+
             using (var db = Connection)
             {
                 try
                 {
-                    var reports = await db.QueryAsync<ProductionReport>(sql, new { searchTerm = searchTerm }).ConfigureAwait(false);
-                    return reports;
+                    return await db.QueryAsync<ProductionReport>(sql, new { searchTerm = searchTerm }).ConfigureAwait(false);
                 }
                 catch (System.Exception ex)
                 {
