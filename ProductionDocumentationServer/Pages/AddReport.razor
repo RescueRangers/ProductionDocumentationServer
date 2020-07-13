@@ -19,7 +19,7 @@
         Production report
         <br /> @_date.ToString("yyyy-MM-dd HH:mm")
     </h3>
-    <form>
+    <form id="report" name="report" autocomplete="on">
         <div class="form-row mb-3">
             <div class="col">
                 <input type="text" autocomplete="on" id="orderNumber" maxlength="50" class="form-control" @bind="@_selectedOrder" placeholder="Order number" />
@@ -55,8 +55,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Section</span>
                             </div>
-                            <input type="text" class="form-control" autocomplete="on" id="Section" @bind-value="item.SectionName" @bind-value:event="oninput" />
-
+                            <input list="sections" type="text" class="form-control" autocomplete="on" name="sectionName" id="section" @bind-value="item.SectionName" />
                             <SfUploader AutoUpload="true" Multiple="false" AllowedExtensions=".jpg, .gif, .png" ShowFileList="true" Locale="pl">
                                 <UploaderEvents ValueChange="OnFileUpload"></UploaderEvents>
                             </SfUploader>
@@ -74,6 +73,12 @@
             </div>
 
         }
+        <datalist id="sections">
+            <option value="Tip"></option>
+            <option value="Root"></option>
+            <option value="All"></option>
+            <option value="Measure"></option>
+        </datalist>
     }
 
     <div class="row mt-3">
@@ -95,7 +100,7 @@
     {
         <div class="row m-3">
             <div class="col-12">
-                <button class="btn btn-success" @onclick="PostProductionreport">Save production report</button>
+                <button class="btn btn-success" type="submit" @onclick="PostProductionreport">Save production report</button>
             </div>
         </div>
     }
@@ -105,13 +110,9 @@
     bool _saving;
     DateTime _date;
     List<ReportPicture> _pictures;
-    ReportSections _reportSections;
     string _selectedSection;
     string _selectedItemName;
     string _selectedItemNumber;
-    List<string> _itemNumbers;
-    List<string> _itemNames;
-    List<Order> _orders;
     string _selectedOrder;
     string _timeCode;
     SfUploader _uploader;
@@ -119,10 +120,6 @@
     protected override async Task OnInitializedAsync()
     {
         StartUp();
-        _orders = await _reportsService.GetOrders();
-        _itemNames = await _reportsService.GetItemNames();
-        _itemNumbers = await _reportsService.GetItemNumbers();
-        _reportSections = await _reportsService.GetReportSections();
         _timeCode = null;
     }
 
@@ -204,34 +201,6 @@
         if (string.IsNullOrWhiteSpace(_timeCode)) GenerateTimeCode();
 
         var report = new ProductionReport { Date = _date, ReportPictures = _pictures, ItemName = _selectedItemName, ItemNumber = _selectedItemNumber, OrderId = orderId, TimeCode = _timeCode };
-
-        var sectionNames = _pictures.Select(x => x.SectionName).ToList();
-        var sectionDifferences = sectionNames.Except(_reportSections.Sections).ToList();
-
-        if (sectionDifferences.Any())
-        {
-            await _reportsService.PostSections(sectionDifferences);
-            _reportSections.Sections.AddRange(sectionDifferences);
-        }
-
-        if (!_itemNames.Contains(_selectedItemName))
-        {
-            await _reportsService.PostItemName(_selectedItemName);
-            _itemNames.Add(_selectedItemName);
-        }
-
-        if (!_itemNumbers.Contains(_selectedItemNumber))
-        {
-            await _reportsService.PostItemNumber(_selectedItemNumber);
-            _itemNumbers.Add(_selectedItemNumber);
-        }
-
-        var orderNumbers = _orders.Select(x => x.OrderNumber);
-
-        if (!orderNumbers.Contains(_selectedOrder))
-        {
-            _orders.Add(new Order { OrderNumber = _selectedOrder });
-        }
 
         try
         {
