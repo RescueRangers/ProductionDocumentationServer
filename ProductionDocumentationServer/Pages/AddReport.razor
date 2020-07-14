@@ -13,6 +13,11 @@
 @inject IReportsService _reportsService
 
 <BlazoredToasts />
+@if (_preRendering)
+{
+
+}
+<PageTitle Title="Add report"></PageTitle>
 
 <div class="container">
     <h3>
@@ -116,6 +121,7 @@
     string _selectedOrder;
     string _timeCode;
     SfUploader _uploader;
+    private bool _preRendering;
 
     protected override async Task OnInitializedAsync()
     {

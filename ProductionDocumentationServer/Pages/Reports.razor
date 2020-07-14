@@ -8,6 +8,8 @@
 @inject NavigationManager _navManager
 @inject IOrdersRepository _ordersRepository
 
+    <PageTitle Title="Reports"></PageTitle>
+
 <h3>Reports on order @_orderNumber</h3>
 
 <SfGrid AllowTextWrap="false" TValue="ProductionReport" ID="Grid" @ref="Grid" AllowPaging="true" AllowResizing="true" AllowExcelExport="true" AllowPdfExport="true" AllowSelection="true"
