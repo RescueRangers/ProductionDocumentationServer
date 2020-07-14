@@ -31,7 +31,7 @@ jobs:
         # Key that we are trying to update
         key: DefaultConnection
         # Value that we are trying to save
-        value: ${{ secrets.$CONNECTION_STRING }}
+        value: ${{ secrets.CONNECTION_STRING }}
     
     - name: Substitute Syncfusion license
       uses: fatmirsukaliq/json-editor@1.0.6
@@ -42,7 +42,7 @@ jobs:
         # Key that we are trying to update
         key: SyncfusionLicense
         # Value that we are trying to save
-        value: ${{ secrets.$SYNCFUSION_LICENSE }}
+        value: ${{ secrets.SYNCFUSION_LICENSE }}
 
     - name: Build & push Docker image        
       uses: mr-smithers-excellent/docker-build-push@v3
