@@ -21,9 +21,31 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-              
-    - uses: mr-smithers-excellent/docker-build-push@v3
-      name: Build & push Docker image
+    
+    - name: Substitute connection string          
+      uses: fatmirsukaliq/json-editor@1.0.6
+      with:
+        # The path to the FILE to edit
+        file: ./ProductionDocumentationServer/appsettings.json
+        # File content that has been processed by some other plugin
+        # Key that we are trying to update
+        key: DefaultConnection
+        # Value that we are trying to save
+        value: ${{ secrets.$CONNECTION_STRING }}
+    
+    - name: Substitute Syncfusion license
+      uses: fatmirsukaliq/json-editor@1.0.6
+      with:
+        # The path to the FILE to edit
+        file: ./ProductionDocumentationServer/appsettings.json
+        # File content that has been processed by some other plugin
+        # Key that we are trying to update
+        key: SyncfusionLicense
+        # Value that we are trying to save
+        value: ${{ secrets.$SYNCFUSION_LICENSE }}
+
+    - name: Build & push Docker image        
+      uses: mr-smithers-excellent/docker-build-push@v3
       with:
         image: dickmarcinko/productiondocumentationserver
         tag: latest
