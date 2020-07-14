@@ -27,7 +27,7 @@ jobs:
       with:
         image: dickmarcinko/productiondocumentationserver
         tag: latest
-        dockerfile: $GITHUB_WORKSPACE/ProductionDocumentationServer\ProductionDocumentationServer/Dockerfile
+        dockerfile: $GITHUB_WORKSPACE/ProductionDocumentationServer/ProductionDocumentationServer/Dockerfile
         registry: docker.io
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
