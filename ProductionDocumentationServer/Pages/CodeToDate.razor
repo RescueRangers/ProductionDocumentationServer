@@ -1,0 +1,37 @@
+﻿@page "/TimeCodeToDate"
+
+@using Services
+
+<PageTitle Title="TimeCode to Date"></PageTitle>
+
+<h3>TimeCode to Date</h3>
+<section>
+    <input type="text" placeholder="TimeCode" @oninput="OnTimeCodeInput" size="18" autofocus="autofocus" />
+    <div id="arrow">↓</div>
+    @if (DecodedTime.HasValue)
+    {
+        <div>@DecodedTime</div>
+    }
+</section>
+
+
+@code {
+    private string _timeCode;
+    private DateTime? DecodedTime;
+
+    void DecodeTimeCode()
+    {
+        DecodedTime = new DateTime(Base36.Base36ToNumber(_timeCode));
+    }
+
+    void OnTimeCodeInput(ChangeEventArgs args)
+    {
+        _timeCode = args.Value.ToString();
+        try
+        {
+            DecodeTimeCode();
+        }
+        catch (Exception)
+        {return;}
+    }
+}
