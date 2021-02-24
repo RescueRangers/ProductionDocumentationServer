@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Substitute connection string          
-      uses: shitiomatic/str-replace@v1.0.2
+      uses: jacobtomlinson/gha-find-replace@master
       with:
         # A regular expression of files to include in our find and replace
         include: appsettings.json
@@ -33,7 +33,7 @@ jobs:
         replace: ${{ secrets.CONNECTION_STRING }}
     
     - name: Substitute Syncfusion license
-      uses: shitiomatic/str-replace@v1.0.2
+      uses: jacobtomlinson/gha-find-replace@master
       with:
         # A regular expression of files to include in our find and replace
         include: appsettings.json
