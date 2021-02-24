@@ -68,7 +68,7 @@ SELECT [Id]
             {
                 var r = await db.QueryFirstAsync<ProductionReport>(sql, new { id }).ConfigureAwait(false);
                 var pictures = await db.QueryAsync<ReportPicture>(picturesSql, new { id }).ConfigureAwait(false);
-                r.OrderNumber = await db.QueryFirstAsync<string>("SELECT [OrderNumber] FROM [dbo].[Orders] WHERE Id = @Id", new { Id = r.OrderId }).ConfigureAwait(false);
+                r.OrderNumber = await db.QueryFirstOrDefaultAsync<string>("SELECT [OrderNumber] FROM [dbo].[Orders] WHERE Id = @Id", new { Id = r.OrderId }).ConfigureAwait(false);
 
                 r.ReportPictures = pictures.ToList();
 

@@ -24,13 +24,13 @@
         Production report
         <br /> @_date.ToString("yyyy-MM-dd HH:mm")
     </h3>
-    <form id="report" name="report" autocomplete="on">
-        <div class="form-row mb-3">
+    <!--<form id="report" name="report" autocomplete="on">-->
+    @*<div class="form-row mb-3">
             <div class="col">
                 <input type="text" autocomplete="on" id="orderNumber" maxlength="50" class="form-control" @bind="@_selectedOrder" placeholder="Order number" />
             </div>
-        </div>
-        <div class="form-row mb-3">
+        </div>*@
+    <!--<div class="form-row mb-3">
             <div class="col">
                 <input type="text" autocomplete="on" id="itemNumbers" maxlength="18" class="form-control" @bind="@_selectedItemNumber" placeholder="Item number" />
             </div>
@@ -38,7 +38,19 @@
                 <input type="text" maxlength="50" autocomplete="on" id="itemNames" class="form-control" @bind="@_selectedItemName" placeholder="Item name" />
             </div>
         </div>
-    </form>
+    </form>-->
+
+    <EditForm Model="_reportVM">
+        <DataAnnotationsValidator />
+        <div class="form-row mb-3">
+            <div class="col-6">
+                <InputText class="form-control" placeholder="Item number" id="itemNumber" @bind-Value="_reportVM.ItemNumber"></InputText>
+            </div>
+            <div class="col-6">
+                <InputText class="form-control" placeholder="Item name" id="itemName" @bind-Value="_reportVM.ItemName"></InputText>
+            </div>
+        </div>
+    </EditForm>
 
     <div class="form-row mb-3">
         <div class="col">
@@ -48,6 +60,23 @@
             <input type="text" maxlength="18" class="text-center form-control" @bind-value="_timeCode" />
         </div>
     </div>
+
+    @if (_pictures.Count < 1
+       || _pictures.Any(x => string.IsNullOrWhiteSpace(x.PictureUrl))
+       || string.IsNullOrWhiteSpace(_reportVM.ItemName)
+       || string.IsNullOrWhiteSpace(_reportVM.ItemNumber)
+       || string.IsNullOrWhiteSpace(_timeCode))
+    {
+
+    }
+    else
+    {
+        <div class="row my-3">
+            <div class="col-12">
+                <button class="btn btn-success" type="submit" @onclick="PostProductionreport">Save production report</button>
+            </div>
+        </div>
+    }
 
     @if (_pictures != null)
     {
@@ -60,7 +89,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Section</span>
                             </div>
-                            <input list="sections" type="text" class="form-control" autocomplete="on" name="sectionName" id="section" @bind-value="item.SectionName" />
+                            @*<input list="sections" type="text" class="form-control" autocomplete="on" name="sectionName" id="section" @bind-value="item.SectionName" />*@
                             <SfUploader AutoUpload="true" Multiple="false" AllowedExtensions=".jpg, .gif, .png" ShowFileList="true" Locale="pl">
                                 <UploaderEvents ValueChange="OnFileUpload"></UploaderEvents>
                             </SfUploader>
@@ -97,24 +126,30 @@
         </div>
     </div>
 
-    @if (_pictures.Any(x => string.IsNullOrWhiteSpace(x.SectionName)) || _pictures.Any(x => string.IsNullOrWhiteSpace(x.PictureUrl)) || string.IsNullOrWhiteSpace(_selectedOrder))
+    @if (_pictures.Count < 1
+       || _pictures.Any(x => string.IsNullOrWhiteSpace(x.PictureUrl))
+       || string.IsNullOrWhiteSpace(_reportVM.ItemName)
+       || string.IsNullOrWhiteSpace(_reportVM.ItemNumber)
+       || string.IsNullOrWhiteSpace(_timeCode))
     {
 
     }
     else
     {
-        <div class="row m-3">
+        <div class="row my-3">
             <div class="col-12">
                 <button class="btn btn-success" type="submit" @onclick="PostProductionreport">Save production report</button>
             </div>
         </div>
     }
+
 </div>
 
 @code{
     bool _saving;
     DateTime _date;
     List<ReportPicture> _pictures;
+    ReportViewModel _reportVM = new ReportViewModel();
     string _selectedSection;
     string _selectedItemName;
     string _selectedItemNumber;
@@ -202,11 +237,11 @@
 
     async Task PostProductionreport()
     {
-        var orderId = await _reportsService.GetOrderId(_selectedOrder);
+        //var orderId = await _reportsService.GetOrderId(_selectedOrder);
 
         if (string.IsNullOrWhiteSpace(_timeCode)) GenerateTimeCode();
 
-        var report = new ProductionReport { Date = _date, ReportPictures = _pictures, ItemName = _selectedItemName, ItemNumber = _selectedItemNumber, OrderId = orderId, TimeCode = _timeCode };
+        var report = new ProductionReport { Date = _date, ReportPictures = _pictures, ItemName = _reportVM.ItemName, ItemNumber = _reportVM.ItemNumber, TimeCode = _timeCode };
 
         try
         {
