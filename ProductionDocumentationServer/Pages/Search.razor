@@ -2,13 +2,12 @@
 
 @using ProductionDocumentationServer.Data
 @using ProductionDocumentationServer.Data.Repositories
-@using Syncfusion.Blazor.Data
 @using Syncfusion.Blazor.Grids
 
 @inject IProductionReportsRepository _reportsRepo
 @inject NavigationManager _navManager
 
-    <PageTitle Title="Search"></PageTitle>
+    <PageTitle>Search</PageTitle>
 
 <h3>Search</h3>
 
@@ -32,7 +31,6 @@
     <GridEvents CommandClicked="OnCommandClicked" TValue="ProductionReport"></GridEvents>
     <GridEditSettings AllowAdding="false" AllowEditing="false" AllowDeleting="false"></GridEditSettings>
     <GridSelectionSettings Type="SelectionType.Single"></GridSelectionSettings>
-    <GridEvents OnToolbarClick="ToolbarClick" TValue="ProductionReport"></GridEvents>
     <GridColumns>
         <GridColumn Field="@nameof(ProductionReport.Id)" HeaderText="Id" IsPrimaryKey="false" Visible="false" IsIdentity="true"></GridColumn>
         <GridColumn Field=@nameof(ProductionReport.Date) HeaderText="Date" AllowEditing="false" Format="d" Type="ColumnType.Date" Width="80"></GridColumn>
@@ -54,22 +52,6 @@
     SfGrid<ProductionReport> Grid;
     private string _searchTerm;
     private string _message = "Search through the reports database...";
-
-    public void ToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
-    {
-        if (args.Item.Id == "Grid_pdfexport")
-        {
-            this.Grid.PdfExport();
-        }
-        if (args.Item.Id == "Grid_excelexport")
-        {
-            this.Grid.ExcelExport();
-        }
-        if (args.Item.Id == "Grid_csvexport")
-        {
-            this.Grid.CsvExport();
-        }
-    }
 
     public async Task PerformSearch()
     {

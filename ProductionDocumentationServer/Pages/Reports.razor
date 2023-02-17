@@ -8,7 +8,7 @@
 @inject NavigationManager _navManager
 @inject IOrdersRepository _ordersRepository
 
-    <PageTitle Title="Reports"></PageTitle>
+    <PageTitle>Reports</PageTitle>
 
 <h3>Reports on order @_orderNumber</h3>
 
@@ -51,19 +51,19 @@
         return new Query().AddParams("OrderId", OrderId);
     }
 
-    public void ToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    public async Task ToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
     {
         if (args.Item.Id == "Grid_pdfexport")
         {
-            this.Grid.PdfExport();
+            await this.Grid.ExportToPdfAsync();
         }
         if (args.Item.Id == "Grid_excelexport")
         {
-            this.Grid.ExcelExport();
+            await this.Grid.ExportToExcelAsync();
         }
         if (args.Item.Id == "Grid_csvexport")
         {
-            this.Grid.CsvExport();
+            await this.Grid.ExportToCsvAsync();
         }
     }
 

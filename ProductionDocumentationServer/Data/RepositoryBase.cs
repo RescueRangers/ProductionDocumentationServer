@@ -12,6 +12,7 @@ namespace ProductionDocumentationServer.Data
         {
             get
             {
+                var cs = _config.GetConnectionString("DefaultConnection");
                 return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             }
         }

@@ -5,7 +5,7 @@
 @using Microsoft.AspNetCore.Hosting;
 @using Services
 @using Blazored.Toast
-@using Blazor.FileReader
+@using Tewr.Blazor.FileReader
 @using Syncfusion.Blazor.Inputs
 
 @inject IToastService toastService
@@ -17,7 +17,7 @@
 {
 
 }
-<PageTitle Title="Add report"></PageTitle>
+<PageTitle>Add report</PageTitle>
 
 <div class="container">
     <h3>
@@ -44,7 +44,7 @@
         <DataAnnotationsValidator />
         <div class="form-row mb-3">
             <div class="col-6">
-                <InputText class="form-control" placeholder="Item number" id="itemNumber" @bind-Value="_reportVM.ItemNumber"></InputText>
+                <InputText class="form-control" placeholder="Item number" autocomplete="on" id="itemNumber" @bind-Value="_reportVM.ItemNumber"></InputText>
             </div>
             <div class="col-6">
                 <InputText class="form-control" placeholder="Item name" id="itemName" @bind-Value="_reportVM.ItemName"></InputText>
@@ -90,7 +90,7 @@
                                 <span class="input-group-text">Section</span>
                             </div>
                             @*<input list="sections" type="text" class="form-control" autocomplete="on" name="sectionName" id="section" @bind-value="item.SectionName" />*@
-                            <SfUploader AutoUpload="true" Multiple="false" AllowedExtensions=".jpg, .gif, .png" ShowFileList="true" Locale="pl">
+                            <SfUploader AutoUpload="true" AllowMultiple="false" AllowedExtensions=".jpg, .gif, .png" ShowFileList="true">
                                 <UploaderEvents ValueChange="OnFileUpload"></UploaderEvents>
                             </SfUploader>
                         </div>
@@ -120,7 +120,7 @@
             <button class="btn btn-success" @onclick="AddPicture">Add picture</button>
         </div>
         <div class="col-6">
-            <SfUploader @ref="_uploader" AutoUpload="true" Multiple="true" AllowedExtensions=".jpg, .gif, .png" ShowFileList="true" Locale="pl">
+            <SfUploader @ref="_uploader" AutoUpload="true" AllowMultiple="true" AllowedExtensions=".jpg, .gif, .png" ShowFileList="true">
                 <UploaderEvents ValueChange="OnMultipleFileUpload"></UploaderEvents>
             </SfUploader>
         </div>
@@ -158,7 +158,7 @@
     SfUploader _uploader;
     private bool _preRendering;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         StartUp();
         _timeCode = null;
@@ -198,7 +198,7 @@
         }
     }
 
-    private void ProcessFile(Syncfusion.Blazor.Inputs.Internal.UploadFiles file)
+    private void ProcessFile(UploadFiles file)
     {
         file.Stream.Position = 0;
         using (var codec = SKCodec.Create(file.Stream))
@@ -264,7 +264,7 @@
         }
         finally
         {
-            await _uploader.ClearAll();
+            await _uploader.ClearAllAsync();
         }
 
     }
