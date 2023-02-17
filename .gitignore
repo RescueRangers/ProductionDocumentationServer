@@ -344,3 +344,4 @@ healthchecksdb
 /ProductionDocumentationServer/appsettings.Release.json
 /ProductionDocumentationServer/logs
 /ProductionDocumentationServer/appsettings.Development.json
+/ProductionDocumentationServer/appsettings.Debug.json
